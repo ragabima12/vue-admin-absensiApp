@@ -1,0 +1,131 @@
+<template>
+  <v-row>
+    <v-col cols="5" class="pb-0" background-color="accent">
+      <v-card elevation="0" height="100%" width="100%" tile>
+        <v-img
+          lazy-src="https://picsum.photos/id/11/10/6"
+          height="100%"
+          width="100%"
+          src="https://picsum.photos/id/11/500/300"
+          gradient="to top right, rgba(100,115,201,.33), rgba(25,32,72,.7)"
+        >
+          <v-layout align-center justify-center fill-height>
+            <v-flex>
+              <v-card-text class="px-8">
+                <h1 class="mb-4 app-text-white">
+                  Integrated Attendance System <br />
+                  SMK Negeri 3 Bandung
+                </h1>
+                <p class="app-text-white">
+                  Sistem presensi terintegrasi SMK Negeri 3 Bandung
+                </p>
+              </v-card-text>
+            </v-flex>
+          </v-layout>
+        </v-img>
+      </v-card>
+    </v-col>
+
+    <v-col cols="7">
+      <v-layout align-center justify-center fill-height>
+        <v-flex>
+          <v-form>
+            <v-container>
+              <v-row>
+                <v-col cols="8" offset="2">
+                  <h2>INTENS CONSOLE</h2>
+                  <h4 class="mb-6 mt-2 app-text-subheading app-heading-thin">
+                    Silahkan login terlebih dahulu
+                  </h4>
+                  <h4 class="mb-2 app-heading-thin">Username</h4>
+                  <v-text-field
+                    v-model="username.value"
+                    :rules="username.errors"
+                    label="Masukan username anda"
+                    solo
+                    required
+                    class="app-outline-thin"
+                  ></v-text-field>
+
+                  <h4 class="mb-2 app-heading-thin">Password</h4>
+                  <v-text-field
+                    v-model="password.value"
+                    :rules="password.errors"
+                    :append-icon="isShowed ? `mdi-eye` : `mdi-eye-off`"
+                    :type="isShowed ? `text` : `password`"
+                    name="input-10-1"
+                    label="Masukan password anda"
+                    solo
+                    required
+                    @click:append="isShowed = !isShowed"
+                  ></v-text-field>
+                  <v-btn
+                    :loading="isSubmitted"
+                    :disabled="isSubmitted"
+                    color="#1664D8"
+                    class="white--text mt-4"
+                    large
+                    width="100%"
+                    @click="submitForm"
+                  >
+                    <b>Login</b>
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-form>
+        </v-flex>
+      </v-layout>
+    </v-col>
+  </v-row>
+</template>
+
+<script>
+export default {
+  name: "Home",
+
+  data() {
+    return {
+      username: {
+        errors: [],
+        value: "",
+      },
+      password: {
+        errors: [],
+        value: "",
+      },
+      isShowed: false,
+      isSubmitted: false,
+    };
+  },
+
+  methods: {
+    resetErrors() {
+      this.username.errors = [];
+      this.password.errors = [];
+    },
+
+    submitForm() {
+      this.isSubmitted = true;
+      this.resetErrors();
+      this.inputValidation();
+      this.isSubmitted = false;
+    },
+
+    inputValidation() {
+      const isEmptyUsername = !this.username.value;
+      const isEmptyPassword = !this.password.value;
+      if (isEmptyUsername)
+        this.username.errors.push("Username tidak boleh kosong");
+      if (isEmptyPassword)
+        this.password.errors.push("Password tidak boleh kosong");
+    },
+  },
+};
+</script>
+
+<style scoped>
+.v-application {
+  background: white;
+}
+</style>

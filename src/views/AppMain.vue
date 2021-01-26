@@ -43,6 +43,9 @@
       <v-btn plain color="white"
         ><h4 class="app-text-white app-heading-thin">Konfigurasi</h4></v-btn
       >
+      <v-btn plain color="white" @click="activePage = `presenceRecap`"
+        ><h4 class="app-text-white app-heading-thin">Test Recap</h4></v-btn
+      >
       <v-spacer></v-spacer>
       <v-chip
         color="accent"
@@ -134,6 +137,7 @@
                   transition="scale-transition"
                   v-if="activePage === `studentData`"
                 />
+                <PresenceRecap v-if="activePage === `presenceRecap`" />
               </v-sheet>
             </v-col>
           </v-row>
@@ -152,6 +156,7 @@
 <script>
 import Presence from "@/views/Presence";
 import StudentData from "@/views/StudentData";
+import PresenceRecap from "@/views/PresenceRecap";
 export default {
   data: () => ({
     activePage: "dashboard",
@@ -199,6 +204,7 @@ export default {
   components: {
     Presence,
     StudentData,
+    PresenceRecap,
   },
 };
 </script>

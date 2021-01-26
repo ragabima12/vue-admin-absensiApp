@@ -65,6 +65,14 @@ export default {
   data() {
     return {
       showCrudDialog: false,
+      sidebar: {
+        title: "Presensi",
+        menus: [
+          { text: "Data Siswa", icon: "mdi-clock" },
+          { text: "Data Orangtua", icon: "mdi-account" },
+        ],
+        selectedMenu: 0,
+      },
       headers: [
         {
           text: "No",
@@ -150,6 +158,9 @@ export default {
         },
       ],
     };
+  },
+  mounted() {
+    this.$store.commit("setSidebar", this.sidebar);
   },
   methods: {
     rowClick1(e) {

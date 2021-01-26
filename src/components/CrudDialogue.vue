@@ -2,10 +2,11 @@
   <div>
     <v-row justify="center">
       <v-dialog
-        v-model="dialog"
+        v-model="isShowedDialog"
         fullscreen
         hide-overlay
         transition="dialog-bottom-transition"
+        @click:outside="isClosedDialog"
       >
         <v-card>
           <v-toolbar dark color="primary">
@@ -95,5 +96,5 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 </style>

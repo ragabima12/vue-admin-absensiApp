@@ -58,6 +58,14 @@ export default {
   data() {
     return {
       showPresenceDialog: false,
+      sidebar: {
+        title: "Presensi",
+        menus: [
+          { text: "Status Presensi", icon: "mdi-clock" },
+          { text: "Rekap Presensi", icon: "mdi-account" },
+        ],
+        selectedMenu: 0,
+      },
       headers: [
         {
           text: "No",
@@ -159,6 +167,9 @@ export default {
     rowClick(e) {
       this.showPresenceDialog = true;
     },
+  },
+  mounted() {
+    this.$store.commit("setSidebar", this.sidebar);
   },
   components: {
     PresenceDialogue,

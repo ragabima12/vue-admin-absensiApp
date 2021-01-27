@@ -26,10 +26,10 @@
     </v-row>
     <v-row>
       <v-col cols="4" class="ml-4 pr-0 mt-3">
-        <v-select rounded label="Jurusan" solo></v-select>
+        <v-select :items="jurusan" rounded label="Jurusan" solo></v-select>
       </v-col>
       <v-col cols="4" class="ml-4 pr-0 mt-3">
-        <v-select rounded label="Kelas" solo></v-select>
+        <v-select :items="kelas" rounded label="Kelas" solo></v-select>
       </v-col>
     </v-row>
     <v-row>
@@ -57,12 +57,14 @@ import PresenceDialogue from "@/components/PresenceDialogue";
 export default {
   data() {
     return {
+      jurusan: ["OTKP", "MM", "AKL", "UPW", "BDP", "MANLOG"],
+      kelas: ["10", "11", "12"],
       showPresenceDialog: false,
       sidebar: {
         title: "Presensi",
         menus: [
-          { text: "Status Presensi", icon: "mdi-clock" },
-          { text: "Rekap Presensi", icon: "mdi-account" },
+          { text: "Status Presensi", icon: "mdi-list-status" },
+          { text: "Rekap Presensi", icon: "mdi-calendar" },
         ],
         selectedMenu: 0,
       },
@@ -89,7 +91,7 @@ export default {
           status_kehadiran: "Hadir",
         },
         {
-          no: "1",
+          no: "2",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
@@ -97,7 +99,7 @@ export default {
           status_kehadiran: "Hadir",
         },
         {
-          no: "1",
+          no: "3",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
@@ -105,7 +107,7 @@ export default {
           status_kehadiran: "Hadir",
         },
         {
-          no: "1",
+          no: "4",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
@@ -113,7 +115,7 @@ export default {
           status_kehadiran: "Hadir",
         },
         {
-          no: "1",
+          no: "5",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
@@ -121,7 +123,7 @@ export default {
           status_kehadiran: "Hadir",
         },
         {
-          no: "1",
+          no: "6",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
@@ -129,7 +131,7 @@ export default {
           status_kehadiran: "Hadir",
         },
         {
-          no: "1",
+          no: "7",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
@@ -137,7 +139,7 @@ export default {
           status_kehadiran: "Hadir",
         },
         {
-          no: "1",
+          no: "8",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
@@ -145,7 +147,7 @@ export default {
           status_kehadiran: "Hadir",
         },
         {
-          no: "1",
+          no: "9",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
@@ -153,7 +155,7 @@ export default {
           status_kehadiran: "Hadir",
         },
         {
-          no: "1",
+          no: "10",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",

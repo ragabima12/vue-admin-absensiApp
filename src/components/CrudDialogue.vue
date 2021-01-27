@@ -2,83 +2,84 @@
   <div>
     <v-row justify="center">
       <v-dialog
+        scrollable
         v-model="isShowedDialog"
-        fullscreen
-        hide-overlay
-        transition="dialog-bottom-transition"
+        persistent
+        max-width="600px"
         @click:outside="isClosedDialog"
       >
         <v-card>
-          <v-toolbar dark color="primary">
-            <v-btn icon dark @click="dialog = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-            <v-toolbar-title>Settings</v-toolbar-title>
+          <v-card-title>
+            <h4 class="app-heading-thin">Edit Data siswa</h4>
             <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-btn dark text @click="dialog = false"> Save </v-btn>
-            </v-toolbar-items>
-          </v-toolbar>
-          <v-list three-line subheader>
-            <v-subheader>User Controls</v-subheader>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Content filtering</v-list-item-title>
-                <v-list-item-subtitle
-                  >Set the content filtering level to restrict apps that can be
-                  downloaded</v-list-item-subtitle
-                >
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Password</v-list-item-title>
-                <v-list-item-subtitle
-                  >Require password for purchase or use password to restrict
-                  purchase</v-list-item-subtitle
-                >
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
+            <v-btn icon @click="isClosedDialog">
+              <v-icon color="red">mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
           <v-divider></v-divider>
-          <v-list three-line subheader>
-            <v-subheader>General</v-subheader>
-            <v-list-item>
-              <v-list-item-action>
-                <v-checkbox v-model="notifications"></v-checkbox>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>Notifications</v-list-item-title>
-                <v-list-item-subtitle
-                  >Notify me about updates to apps or games that I
-                  downloaded</v-list-item-subtitle
-                >
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-action>
-                <v-checkbox v-model="sound"></v-checkbox>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>Sound</v-list-item-title>
-                <v-list-item-subtitle
-                  >Auto-update apps at any time. Data charges may
-                  apply</v-list-item-subtitle
-                >
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-action>
-                <v-checkbox v-model="widgets"></v-checkbox>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>Auto-add widgets</v-list-item-title>
-                <v-list-item-subtitle
-                  >Automatically add home screen widgets</v-list-item-subtitle
-                >
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col class="pb-0" cols="6">
+                  <h4 class="app-heading-thin app-text-subheading">
+                    Nama Lengkap
+                  </h4>
+                  <v-text-field
+                    rounded
+                    solo
+                    label="Masukan Nama Lengkap"
+                  ></v-text-field>
+                </v-col>
+                <v-col class="pb-0" cols="6">
+                  <h4 class="app-heading-thin app-text-subheading">NISN</h4>
+                  <v-text-field
+                    rounded
+                    solo
+                    label="Masukan NISN"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="5">
+                  <h4 class="app-heading-thin app-text-subheading">Jurusan</h4>
+                  <v-select
+                    rounded
+                    solo
+                    :items="jurusan"
+                    label="Jurusan"
+                  ></v-select>
+                </v-col>
+                <v-col cols="5">
+                  <h4 class="app-heading-thin app-text-subheading">Kelas</h4>
+                  <v-select
+                    rounded
+                    solo
+                    :items="kelas"
+                    label="Kelas"
+                  ></v-select>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col class="pt-0" cols="12">
+                  <h4 class="app-heading-thin app-text-subheading">
+                    Nama Orangtua
+                  </h4>
+                  <v-autocomplete
+                    solo
+                    rounded
+                    label="Nama Orangtua"
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text>
+              <h4 class="app-heading-thin">Simpan</h4>
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-dialog>
     </v-row>
@@ -87,6 +88,19 @@
 
 <script>
 export default {
+  data() {
+    return {
+      kelas: ["10", "11", "12"],
+      jurusan: [
+        "Multimedia",
+        "Otomatisasi & Tata Kelola Perkantoran",
+        "Bisnis Daring Pemasaran",
+        "Usaha Perjalanan Wisata",
+        "Akuntansi Keuangan Lembaga",
+        "Manajemen Logistik",
+      ],
+    };
+  },
   props: ["isShowedDialog"],
   methods: {
     isClosedDialog() {

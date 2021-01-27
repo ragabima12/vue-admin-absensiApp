@@ -9,7 +9,7 @@
         <v-card-title primary-title class="mb-3">
           <h4 class="app-heading-thin">Status Presensi</h4>
           <v-spacer></v-spacer>
-          <v-btn icon>
+          <v-btn icon @click="isClosedDialog">
             <v-icon color="red">mdi-close</v-icon>
           </v-btn>
         </v-card-title>

@@ -26,10 +26,10 @@
     </v-row>
     <v-row>
       <v-col cols="3" class="ml-4 pr-0 mt-3">
-        <v-select rounded label="Jurusan" solo></v-select>
+        <v-select :items="jurusan" rounded label="Jurusan" solo></v-select>
       </v-col>
       <v-col cols="3" class="ml-4 pr-0 mt-3">
-        <v-select rounded label="Kelas" solo></v-select>
+        <v-select :items="kelas" rounded label="Kelas" solo></v-select>
       </v-col>
       <v-spacer></v-spacer>
       <v-col cols="4" class="pl-8 mt-4">
@@ -64,9 +64,11 @@ import CrudDialog from "@/components/CrudDialogue";
 export default {
   data() {
     return {
+      jurusan: ["OTKP", "MM", "AKL", "UPW", "BDP", "MANLOG"],
+      kelas: ["10", "11", "12"],
       showCrudDialog: false,
       sidebar: {
-        title: "Presensi",
+        title: "Data Siswa",
         menus: [
           { text: "Data Siswa", icon: "mdi-clock" },
           { text: "Data Orangtua", icon: "mdi-account" },

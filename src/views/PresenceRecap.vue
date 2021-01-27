@@ -7,7 +7,7 @@
     </v-row>
     <v-row class="ml-2">
       <v-col class="pr-0" cols="12" sm="6">
-        <v-date-picker v-model="dates" range></v-date-picker>
+        <v-date-picker elevation="2" v-model="dates" range></v-date-picker>
       </v-col>
       <v-col class="pl-0" cols="12" sm="6">
         <v-text-field

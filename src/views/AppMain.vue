@@ -9,7 +9,7 @@
       offset-y
     >
       <v-list>
-        <a href="#" class="app-nolink" @click="test">
+        <a href="#" class="app-nolink">
           <v-list-item
             v-for="(menuItem, menuItemindex) of menuItems.menus"
             :key="menuItemindex"
@@ -31,20 +31,17 @@
           INTENS <span class="app-text-thin">Console</span>
         </h3>
       </v-toolbar-title>
-      <v-btn plain color="white" @click="activePage = `dashboard`"
+      <v-btn plain color="white" @click="NavigateTo(`dashboard`)"
         ><h4 class="app-text-white app-heading-thin">Dashboard</h4></v-btn
       >
-      <v-btn plain color="white" @click="activePage = `presence`"
+      <v-btn plain color="white" @click="NavigateTo(`presence`)"
         ><h4 class="app-text-white app-heading-thin">Presensi</h4></v-btn
       >
-      <v-btn plain color="white" @click="activePage = `studentData`"
+      <v-btn plain color="white" @click="NavigateTo(`studentData`)"
         ><h4 class="app-text-white app-heading-thin">Data Siswa</h4></v-btn
       >
       <v-btn plain color="white"
         ><h4 class="app-text-white app-heading-thin">Konfigurasi</h4></v-btn
-      >
-      <v-btn plain color="white" @click="activePage = `presenceRecap`"
-        ><h4 class="app-text-white app-heading-thin">Test Recap</h4></v-btn
       >
       <v-spacer></v-spacer>
       <v-chip
@@ -104,9 +101,10 @@ import Presence from "@/views/Presence";
 import StudentData from "@/views/StudentData";
 import PresenceRecap from "@/views/PresenceRecap";
 import AppSidebar from "@/components/AppSidebar";
+import { mapState } from "vuex";
+
 export default {
   data: () => ({
-    activePage: "dashboard",
     accountDialog: {
       isShowed: false,
       width: 200,
@@ -134,10 +132,14 @@ export default {
       this.accountDialog.width = width;
       this.accountDialog.isShowed = !this.accountDialog.isShowed;
     },
-    test() {
-      alert("OK!");
+    NavigateTo(path) {
+      this.$store.commit("setActivePage", path);
     },
   },
+  computed: mapState({
+    activePage: "activePage",
+  }),
+
   components: {
     Presence,
     StudentData,

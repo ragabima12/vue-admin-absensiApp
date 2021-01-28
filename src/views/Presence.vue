@@ -63,9 +63,25 @@ export default {
       sidebar: {
         title: "Presensi",
         menus: [
-          { text: "Status Presensi", icon: "mdi-list-status" },
-          { text: "Rekap Presensi", icon: "mdi-calendar" },
+          {
+            text: "Status Presensi",
+            icon: "mdi-list-status",
+            action: "presence",
+          },
+          {
+            text: "Rekap Presensi",
+            icon: "mdi-calendar",
+            action: "recapPresence",
+          },
         ],
+        actions: {
+          presence() {
+            this.$store.commit("setActivePage", "presence");
+          },
+          recapPresence() {
+            this.$store.commit("setActivePage", "presenceRecap");
+          },
+        },
         selectedMenu: 0,
       },
       headers: [

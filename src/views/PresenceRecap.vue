@@ -2,7 +2,7 @@
   <div>
     <v-row class="ml-2 mb-2">
       <v-col>
-        <h2>Rekap Absen</h2>
+        <h2 class="app-heading-thin">Rekap Absen</h2>
       </v-col>
     </v-row>
     <v-row class="ml-2">

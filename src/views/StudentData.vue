@@ -33,7 +33,7 @@
       </v-col>
       <v-spacer></v-spacer>
       <v-col cols="4" class="pl-8 mt-4">
-        <v-btn dark rounded large color="#15D46D"
+        <v-btn @click="buttonClick" dark rounded large color="#15D46D"
           ><v-icon left>mdi-plus</v-icon>
           <h4 class="app-text-white app-heading-thin">Tambah Siswa</h4>
         </v-btn>
@@ -68,11 +68,27 @@ export default {
       kelas: ["10", "11", "12"],
       showCrudDialog: false,
       sidebar: {
-        title: "Data Siswa",
+        title: "Data",
         menus: [
-          { text: "Data Siswa", icon: "mdi-clock" },
-          { text: "Data Orangtua", icon: "mdi-account" },
+          {
+            text: "Data Siswa",
+            icon: "mdi-clock",
+            action: "dataStudent",
+          },
+          {
+            text: "Data Orangtua",
+            icon: "mdi-account",
+            action: "dataParent",
+          },
         ],
+        actions: {
+          dataStudent() {
+            this.$store.commit("setActivePage", "studentData");
+          },
+          dataParent() {
+            this.$store.commit("setActivePage", "parentData");
+          },
+        },
         selectedMenu: 0,
       },
       headers: [
@@ -96,63 +112,63 @@ export default {
           kelas: 11,
         },
         {
-          no: "1",
+          no: "2",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
           kelas: 11,
         },
         {
-          no: "1",
+          no: "3",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
           kelas: 11,
         },
         {
-          no: "1",
+          no: "4",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
           kelas: 11,
         },
         {
-          no: "1",
+          no: "5",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
           kelas: 11,
         },
         {
-          no: "1",
+          no: "6",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
           kelas: 11,
         },
         {
-          no: "1",
+          no: "7",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
           kelas: 11,
         },
         {
-          no: "1",
+          no: "8",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
           kelas: 11,
         },
         {
-          no: "1",
+          no: "9",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
           kelas: 11,
         },
         {
-          no: "1",
+          no: "10",
           nisn: "0022223344657",
           nama_lengkap: "Raga Bima Jati Raksa",
           jurusan: "MM",
@@ -166,6 +182,9 @@ export default {
   },
   methods: {
     rowClick1(e) {
+      this.showCrudDialog = true;
+    },
+    buttonClick(e) {
       this.showCrudDialog = true;
     },
   },

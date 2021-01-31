@@ -19,7 +19,7 @@
           <v-divider></v-divider>
           <v-card-text>
             <v-container>
-              <v-row>
+              <v-row class="my-auto">
                 <v-col class="pb-0" cols="6">
                   <h4 class="app-heading-thin app-text-subheading">
                     Nama Lengkap
@@ -60,15 +60,40 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col class="pt-0" cols="12">
+                <v-col class="pt-0 pb-0" cols="12">
                   <h4 class="app-heading-thin app-text-subheading">
                     Nama Orangtua
                   </h4>
                   <v-autocomplete
+                    v-model="namaOrtu"
+                    :items="people"
                     solo
                     rounded
+                    color="blue-grey lighten-2"
                     label="Nama Orangtua"
-                  ></v-autocomplete>
+                    item-text="name"
+                    item-value="name"
+                    clearable
+                    hide-no-data
+                  >
+                    <template v-slot:item="data">
+                      <template v-if="typeof data.item !== 'object'">
+                        <v-list-item-content
+                          v-text="data.item"
+                        ></v-list-item-content>
+                      </template>
+                      <template v-else>
+                        <v-list-item-content>
+                          <v-list-item-title
+                            v-html="data.item.name"
+                          ></v-list-item-title>
+                          <v-list-item-subtitle
+                            v-html="data.item.nik"
+                          ></v-list-item-subtitle>
+                        </v-list-item-content>
+                      </template>
+                    </template>
+                  </v-autocomplete>
                 </v-col>
               </v-row>
             </v-container>
@@ -90,6 +115,18 @@
 export default {
   data() {
     return {
+      namaOrtu: [],
+      name: "Midnight Crew",
+      people: [
+        { name: "Sandra Adams", nik: "202001122332" },
+        { name: "Ali Connors", nik: "202001122332" },
+        { name: "Trevor Hansen", nik: "202001122332" },
+        { name: "Tucker Smith", nik: "202001122332" },
+        { name: "Britta Holt", nik: "202001122332" },
+        { name: "Jane Smith ", nik: "202001122332" },
+        { name: "John Smith", nik: "202001122332" },
+        { name: "Sandra Williams", nik: "202001122332" },
+      ],
       kelas: ["10", "11", "12"],
       jurusan: [
         "Multimedia",
@@ -101,6 +138,7 @@ export default {
       ],
     };
   },
+
   props: ["isShowedDialog"],
   methods: {
     isClosedDialog() {

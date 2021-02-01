@@ -60,30 +60,6 @@ export default {
       jurusan: ["OTKP", "MM", "AKL", "UPW", "BDP", "MANLOG"],
       kelas: ["10", "11", "12"],
       showPresenceDialog: false,
-      sidebar: {
-        title: "Presensi",
-        menus: [
-          {
-            text: "Status Presensi",
-            icon: "mdi-list-status",
-            action: "presence",
-          },
-          {
-            text: "Rekap Presensi",
-            icon: "mdi-calendar",
-            action: "recapPresence",
-          },
-        ],
-        actions: {
-          presence() {
-            this.$store.commit("setActivePage", "presence");
-          },
-          recapPresence() {
-            this.$store.commit("setActivePage", "presenceRecap");
-          },
-        },
-        selectedMenu: 0,
-      },
       headers: [
         {
           text: "No",
@@ -185,9 +161,6 @@ export default {
     rowClick(e) {
       this.showPresenceDialog = true;
     },
-  },
-  mounted() {
-    this.$store.commit("setSidebar", this.sidebar);
   },
   components: {
     PresenceDialogue,

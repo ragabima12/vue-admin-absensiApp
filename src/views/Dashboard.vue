@@ -31,13 +31,13 @@
           INTENS <span class="app-text-thin">Console</span>
         </h3>
       </v-toolbar-title>
-      <v-btn plain color="white" @click="NavigateTo(`dashboard`)"
+      <v-btn plain color="white" @click="NavigateTo(`/dashboard`)"
         ><h4 class="app-text-white app-heading-thin">Dashboard</h4></v-btn
       >
-      <v-btn plain color="white" @click="NavigateTo(`presence`)"
+      <v-btn plain color="white" @click="NavigateTo(`/dashboard/presence`)"
         ><h4 class="app-text-white app-heading-thin">Presensi</h4></v-btn
       >
-      <v-btn plain color="white" @click="NavigateTo(`studentData`)"
+      <v-btn plain color="white" @click="NavigateTo(`/dashboard/student`)"
         ><h4 class="app-text-white app-heading-thin">Data Siswa</h4></v-btn
       >
       <v-btn plain color="white"
@@ -62,7 +62,7 @@
       </v-chip>
     </v-app-bar>
     <div class="mt-12">
-      <v-row v-if="activePage !== `dashboard`">
+      <v-row>
         <v-col cols="3" offset="1"
           ><v-card class="mx-auto" width="300" elevation="0">
             <AppSidebar></AppSidebar>
@@ -72,25 +72,10 @@
           <v-row>
             <v-col cols="10">
               <v-sheet rounded class="px-4 py-4" elevation="1">
-                <Presence
-                  transition="fade-transition"
-                  v-if="activePage === `presence`"
-                />
-                <StudentData
-                  transition="scale-transition"
-                  v-if="activePage === `studentData`"
-                />
-                <PresenceRecap v-if="activePage === `presenceRecap`" />
-                <ParentData v-if="activePage === `parentData`" />
+                <router-view />
               </v-sheet>
             </v-col>
           </v-row>
-        </v-col>
-      </v-row>
-
-      <v-row v-else>
-        <v-col cols="10" offset="1">
-          <h1>OK!</h1>
         </v-col>
       </v-row>
     </div>
@@ -98,13 +83,7 @@
 </template>
 
 <script>
-import Presence from "@/views/Presence";
-import StudentData from "@/views/StudentData";
-import PresenceRecap from "@/views/PresenceRecap";
 import AppSidebar from "@/components/AppSidebar";
-import ParentData from "@/views/ParentData";
-import { mapState } from "vuex";
-
 export default {
   data: () => ({
     accountDialog: {
@@ -135,19 +114,24 @@ export default {
       this.accountDialog.isShowed = !this.accountDialog.isShowed;
     },
     NavigateTo(path) {
-      this.$store.commit("setActivePage", path);
+      this.$router.push(path).catch(() => {});
     },
   },
-  computed: mapState({
-    activePage: "activePage",
-  }),
-
   components: {
-    Presence,
-    StudentData,
-    PresenceRecap,
     AppSidebar,
-    ParentData,
+  },
+  props: ["sidebarMenus"],
+  watch: {
+    sidebarMenus: {
+      handler(menu) {
+        this.$store.commit("setSidebar", menu);
+      },
+      deep: true,
+    },
+  },
+
+  mounted() {
+    this.$store.commit("setSidebar", this.sidebarMenus);
   },
 };
 </script>

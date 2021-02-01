@@ -1,20 +1,42 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '@/views/Login'
-import Main from '@/views/AppMain'
+import Presence from '@/views/Presence'
+import PresenceRecap from '@/views/PresenceRecap'
+import StudentData from '@/views/StudentData'
+import ParentData from '@/views/ParentData'
 
 Vue.use(VueRouter)
 
 const routes = [
+  {
+    path: '/',
+    redirect: '/dashboard'
+  },
   {
     path: '/login',
     name: 'Login',
     component: Login
   },
   {
-    path: '/',
-    name: 'Main',
-    component: Main
+    path: '/dashboard/presence',
+    name: 'Presence',
+    component: Presence
+  },
+  {
+    path: '/dashboard/presence/recap',
+    name: 'Presence Recap',
+    component: PresenceRecap
+  },
+  {
+    path: '/dashboard/student',
+    name: 'Student Data',
+    component: StudentData
+  },
+  {
+    path: '/dashboard/student/parent',
+    name: 'Parent Data',
+    component: ParentData
   }
 ]
 

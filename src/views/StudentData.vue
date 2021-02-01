@@ -67,30 +67,6 @@ export default {
       jurusan: ["OTKP", "MM", "AKL", "UPW", "BDP", "MANLOG"],
       kelas: ["10", "11", "12"],
       showCrudDialog: false,
-      sidebar: {
-        title: "Data",
-        menus: [
-          {
-            text: "Data Siswa",
-            icon: "mdi-clock",
-            action: "dataStudent",
-          },
-          {
-            text: "Data Orangtua",
-            icon: "mdi-account",
-            action: "dataParent",
-          },
-        ],
-        actions: {
-          dataStudent() {
-            this.$store.commit("setActivePage", "studentData");
-          },
-          dataParent() {
-            this.$store.commit("setActivePage", "parentData");
-          },
-        },
-        selectedMenu: 0,
-      },
       headers: [
         {
           text: "No",
@@ -176,9 +152,6 @@ export default {
         },
       ],
     };
-  },
-  mounted() {
-    this.$store.commit("setSidebar", this.sidebar);
   },
   methods: {
     rowClick1(e) {

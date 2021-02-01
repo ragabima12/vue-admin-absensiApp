@@ -1,15 +1,28 @@
 <template>
-  <v-app :class="adaptBackground">
+  <v-app
+    v-if="currentPath.toLowerCase().indexOf('/dashboard') > -1"
+    :class="adaptBackground"
+  >
+    <Dashboard :sidebarMenus="sidebarMenus"></Dashboard>
+  </v-app>
+  <v-app v-else :class="adaptBackground">
     <router-view />
   </v-app>
 </template>
 
 <script>
+import Dashboard from "@/views/Dashboard";
 export default {
   name: "App",
 
   data: () => ({
     currentPath: "",
+    sidebar: {
+      title: "",
+      menus: [],
+      actions: {},
+      selectedMenu: 0,
+    },
   }),
 
   computed: {
@@ -17,6 +30,58 @@ export default {
     adaptBackground() {
       if (this.currentPath == "/login") return "app-bg-white";
       return "app-bg-grey";
+    },
+
+    sidebarMenus() {
+      let currentPath = this.currentPath;
+      if (currentPath.toLowerCase().indexOf("/dashboard/presence") > -1) {
+        this.sidebar.title = "Presensi";
+        this.sidebar.menus = [
+          {
+            text: "Status Presensi",
+            icon: "mdi-list-status",
+            action: "presence",
+          },
+          {
+            text: "Rekap Presensi",
+            icon: "mdi-calendar",
+            action: "presenceRecap",
+          },
+        ];
+        this.sidebar.actions = {
+          presence() {
+            return this.$router.push("/dashboard/presence");
+          },
+          presenceRecap() {
+            return this.$router.push("/dashboard/presence/recap");
+          },
+        };
+      }
+
+      if (currentPath.toLowerCase().indexOf("/dashboard/student") > -1) {
+        this.sidebar.title = "Data Siswa";
+        this.sidebar.menus = [
+          {
+            text: "Data Siswa",
+            icon: "mdi-list-status",
+            action: "studentData",
+          },
+          {
+            text: "Data Orangtua Siswa",
+            icon: "mdi-calendar",
+            action: "parentData",
+          },
+        ];
+        this.sidebar.actions = {
+          studentData() {
+            return this.$router.push("/dashboard/student");
+          },
+          parentData() {
+            return this.$router.push("/dashboard/student/parent");
+          },
+        };
+      }
+      return this.sidebar;
     },
   },
 
@@ -28,6 +93,10 @@ export default {
 
   mounted() {
     this.currentPath = this.$router.history.current.path;
+  },
+
+  components: {
+    Dashboard,
   },
 };
 </script>

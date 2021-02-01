@@ -81,6 +81,7 @@
                   v-if="activePage === `studentData`"
                 />
                 <PresenceRecap v-if="activePage === `presenceRecap`" />
+                <ParentData v-if="activePage === `parentData`" />
               </v-sheet>
             </v-col>
           </v-row>
@@ -101,6 +102,7 @@ import Presence from "@/views/Presence";
 import StudentData from "@/views/StudentData";
 import PresenceRecap from "@/views/PresenceRecap";
 import AppSidebar from "@/components/AppSidebar";
+import ParentData from "@/views/ParentData";
 import { mapState } from "vuex";
 
 export default {
@@ -145,6 +147,7 @@ export default {
     StudentData,
     PresenceRecap,
     AppSidebar,
+    ParentData,
   },
 };
 </script>

@@ -20,7 +20,7 @@ const Request = async (reqUrl, reqMethod, reqBody, reqHeaders) => {
         response.reason = `Request Method must be a string, ${typeof reqMethod} given`
         return response
     }
-
+    
     const request = await Axios({
         url: reqUrl,
         method: reqMethod,
@@ -37,7 +37,7 @@ const Login = async (username, password) => {
     let response = {...responseStatus}
     if( typeof username !== 'string' || typeof password !== 'string'){
         response.isError = true
-        respyonse.reason = `Username and Password must be a string, given ${typeof username} on username, and ${typeof password} on password`
+        response.reason = `Username and Password must be a string, given ${typeof username} on username, and ${typeof password} on password`
         return response
     }
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/auth/login`
@@ -47,8 +47,16 @@ const Login = async (username, password) => {
         password: password
     }
 
-    const request = await Request(url, method, data)
-    console.log(request)
+    const requestResponse = await Request(url, method, data)
+    if( requestResponse.isError ){
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+    
+    response.data = requestResponse.data
+    return response
+
 }
 
 export default { Login }

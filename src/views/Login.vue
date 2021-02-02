@@ -120,7 +120,7 @@ export default {
       });
 
       if (response.isError) {
-        console.log(respone.reason);
+        alert(response.reason);
         this.isSubmitted = false;
         return;
       }

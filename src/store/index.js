@@ -1,8 +1,11 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import VueCookies from 'vue-cookies'
 import Request from '@/plugins/APIRequests'
+import JWT from 'jsonwebtoken'
 
 Vue.use(Vuex)
+Vue.use(VueCookies)
 
 let responseStatus = {
   isError: false,
@@ -12,13 +15,9 @@ let responseStatus = {
 
 export default new Vuex.Store({
   state: {
-    userCredentials: {
-      accessToken: '',
-      refreshToken: ''
-    },
-
+    userData: {},
     sidebar: {
-      title: "OK!",
+      title: "",
       menus: [],
       actions: {},
       selectedMenu: 0
@@ -35,38 +34,76 @@ export default new Vuex.Store({
       if (!path) return console.warn('[WARN] Path not defined when change the active page')
       state.activePage = path
     },
-    setUserToken: (state, payload) => {
-      const accessToken = payload.accessToken
-      const refreshToken = payload.refreshToken
-      state.userCredentials.accessToken = accessToken
-      state.userCredentials.refreshToken = refreshToken
+    setUserData: (state, payload) => {
+      if( typeof payload === 'object' ){
+        state.userData = payload
+      }
     }
   },
   actions: {
-    isLoggedIn: (state) => {
-      const isHavingAccessToken = state.state.userCredentials.accessToken ? true : false
-      const isHavingRefreshToken = state.state.userCredentials.accessToken ? true : false
-      return isHavingAccessToken && isHavingRefreshToken ? true : false
+    isLoggedIn: async (state) => {
+      const accessToken = Vue.$cookies.get('access-token')
+      const refreshToken = Vue.$cookies.get('refresh-token')
+      const isHavingAccessToken =  accessToken ? true : false
+      const isHavingRefreshToken = refreshToken ? true : false
+      const publicKey = process.env.VUE_APP_PUBLIC_KEY
+
+      if (isHavingAccessToken && isHavingRefreshToken) {
+        try{
+          const decodedToken = await JWT.verify(accessToken, publicKey)
+          if( !decodedToken ) return false
+
+          // Delete unused property of "decodedToken" object
+          delete decodedToken.exp
+          delete decodedToken.iat
+
+          state.commit('setUserData', decodedToken)
+          const isAdmin = state.state.userData.previleges === 'admin'
+          if( !isAdmin ) return false
+
+          return true
+        }catch(exception){
+          console.warn(exception.message)
+          return false
+        }
+      }
+      return false
     },
-    login: (state, payload) => {
-      let response = {...responseStatus}
+    login: async (state, payload) => {
+      let response = { ...responseStatus }
       const username = payload.username
       const password = payload.password
-      if( !username || !password ){
+      if (!username || !password) {
         response.isError = true
         response.reason = `Username or Password must be a string. got ${typeof username} for username and ${typeof password} on password`
         return response
       }
-      
-      // state.commit('setUserToken', {accessToken: 'aaa', refreshToken: 'bbb'})
+
+      let requestResponse = await Request.Login(username, password)
+      const isError = requestResponse.isError
+      const isSuccess = requestResponse.data.statusCode === 200
+
+      if( !isError && isSuccess ){
+        const responseData = requestResponse.data.data
+        const accessToken = responseData.access_token
+        const refreshToken = responseData.refresh_token
+        
+        // Store both tokens to cookie
+        Vue.$cookies.set('access-token', accessToken)
+        Vue.$cookies.set('refresh-token', refreshToken)
+        return response
+      }
+
+      response.isError = true
+      response.reason = requestResponse.data.reason
       return response
-    }
+    },
   },
   modules: {
   },
   getters: {
     getSidebar: state => {
       return state.sidebar
-    },
-  }
+      },
+    }
 })

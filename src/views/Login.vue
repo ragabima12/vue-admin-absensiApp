@@ -105,20 +105,41 @@ export default {
       this.password.errors = [];
     },
 
-    submitForm() {
+    async submitForm() {
       this.isSubmitted = true;
       this.resetErrors();
-      this.inputValidation();
+      const isValid = this.inputValidation();
+      if (!isValid) {
+        this.isSubmitted = false;
+        return;
+      }
+
+      const response = await this.$store.dispatch("login", {
+        username: this.username.value,
+        password: this.password.value,
+      });
+
+      if (response.isError) {
+        console.log(respone.reason);
+        this.isSubmitted = false;
+        return;
+      }
+      this.$router.push("/dashboard");
       this.isSubmitted = false;
     },
 
     inputValidation() {
       const isEmptyUsername = !this.username.value;
       const isEmptyPassword = !this.password.value;
-      if (isEmptyUsername)
+      if (isEmptyUsername) {
         this.username.errors.push("Username tidak boleh kosong");
-      if (isEmptyPassword)
+        return false;
+      }
+      if (isEmptyPassword) {
         this.password.errors.push("Password tidak boleh kosong");
+        return false;
+      }
+      return true;
     },
   },
 };

@@ -18,9 +18,15 @@
     </v-row>
     <v-row>
       <v-col cols="4" class="pl-6 mt-4">
-        <v-btn dark rounded large color="#15D46D"
+        <v-btn @click="buttonPlus" dark rounded large color="#15D46D"
           ><v-icon left>mdi-plus</v-icon>
           <h4 class="app-text-white app-heading-thin">Tambah Orangtua</h4>
+        </v-btn>
+      </v-col>
+      <v-col cols="4" class="pl-6 mt-4">
+        <v-btn dark rounded large color="#15D46D"
+          ><v-icon left>mdi-microsoft-excel</v-icon>
+          <h4 class="app-text-white app-heading-thin">Upload Excel</h4>
         </v-btn>
       </v-col>
     </v-row>
@@ -35,13 +41,20 @@
         ></v-data-table>
       </v-col>
     </v-row>
+    <ParentDialog
+      @closed="ShowDialogParent = false"
+      :isShowedDialog="ShowDialogParent"
+    />
   </div>
 </template>
 
 <script>
+import ParentDialog from "@/components/ParentDialog";
+
 export default {
   data() {
     return {
+      ShowDialogParent: false,
       headers: [
         {
           text: "No",
@@ -120,6 +133,17 @@ export default {
         },
       ],
     };
+  },
+  components: {
+    ParentDialog,
+  },
+  methods: {
+    rowClick1(e) {
+      this.ShowDialogParent = true;
+    },
+    buttonPlus(e) {
+      this.ShowDialogParent = true;
+    },
   },
 };
 </script>

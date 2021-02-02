@@ -12,6 +12,7 @@
 
 <script>
 import Dashboard from "@/views/Dashboard";
+
 export default {
   name: "App",
 
@@ -86,13 +87,38 @@ export default {
   },
 
   watch: {
-    $route: function () {
+    $route: async function () {
       this.currentPath = this.$router.history.current.path;
+      const isLoggedIn = await this.$store.dispatch("isLoggedIn");
+      const onLoginPage = this.currentPath.toLowerCase().indexOf("/login") > -1;
+      const onDashboardPage =
+        this.currentPath.toLowerCase().indexOf("/dashboard") > -1;
+      if (onLoginPage && isLoggedIn === true) {
+        // Redirect to dashboard
+        this.$router.push("/dashboard");
+      }
+      if (onDashboardPage && isLoggedIn === false) {
+        // Redirect to login
+        this.$router.push("/login");
+      }
     },
   },
 
-  mounted() {
+  async mounted() {
     this.currentPath = this.$router.history.current.path;
+    const isLoggedIn = await this.$store.dispatch("isLoggedIn");
+    const onLoginPage = this.currentPath.toLowerCase().indexOf("/login") > -1;
+    const onDashboardPage =
+      this.currentPath.toLowerCase().indexOf("/dashboard") > -1;
+
+    if (onLoginPage && isLoggedIn === true) {
+      // Redirect to dashboard
+      this.$router.push("/dashboard");
+    }
+    if (onDashboardPage && isLoggedIn === false) {
+      // Redirect to login
+      this.$router.push("/login");
+    }
   },
 
   components: {

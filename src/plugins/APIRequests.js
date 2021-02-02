@@ -1,0 +1,54 @@
+import Axios from 'axios'
+
+let responseStatus = {
+    isError: false,
+    data: null,
+    reason: null
+}
+
+const Request = async (reqUrl, reqMethod, reqBody, reqHeaders) => {
+    let response = {...responseStatus}
+
+    if( typeof reqUrl !== 'string' || reqUrl == ''){
+        response.isError = true
+        response.reason = `Request Url must be a string, ${typeof reqUrl} given`
+        return response
+    }
+
+    if( typeof reqMethod !== 'string'){
+        response.isError = true
+        response.reason = `Request Method must be a string, ${typeof reqMethod} given`
+        return response
+    }
+
+    const request = await Axios({
+        url: reqUrl,
+        method: reqMethod,
+        data: reqBody || {},
+        headers: reqHeaders || {}
+    })
+
+    response.data = request.data
+    return response
+
+}
+
+const Login = async (username, password) => {
+    let response = {...responseStatus}
+    if( typeof username !== 'string' || typeof password !== 'string'){
+        response.isError = true
+        respyonse.reason = `Username and Password must be a string, given ${typeof username} on username, and ${typeof password} on password`
+        return response
+    }
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/auth/login`
+    const method = 'POST'
+    const data = {
+        username: username,
+        password: password
+    }
+
+    const request = await Request(url, method, data)
+    console.log(request)
+}
+
+export default { Login }

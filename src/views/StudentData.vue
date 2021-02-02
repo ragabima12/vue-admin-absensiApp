@@ -1,6 +1,26 @@
 <template>
   <div>
     <v-row>
+      <v-col class="ml-3" cols="12">
+        <h2 class="app-heading-thin">Data Siswa</h2>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="3" class="mt-3 ml-2 mb-4 pr-0">
+        <v-btn @click="buttonClick" dark large rounded color="#15D46D"
+          ><v-icon left>mdi-plus</v-icon>
+          <h4 class="app-text-white app-heading-thin">Tambah Siswa</h4>
+        </v-btn>
+      </v-col>
+      <v-col cols="4" class="mt-3 ml-7 pl-0 mb-4 pr-0">
+        <v-btn dark large rounded color="#15D46D"
+          ><v-icon left>mdi-microsoft-excel</v-icon>
+          <h4 class="app-text-white app-heading-thin">Upload Excel</h4>
+        </v-btn>
+        <v-spacer></v-spacer>
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col class="pa-0 pt-4 px-6" cols="7">
         <v-text-field
           height="48px"
@@ -32,12 +52,6 @@
         <v-select :items="kelas" rounded label="Kelas" solo></v-select>
       </v-col>
       <v-spacer></v-spacer>
-      <v-col cols="4" class="pl-8 mt-4">
-        <v-btn @click="buttonClick" dark rounded large color="#15D46D"
-          ><v-icon left>mdi-plus</v-icon>
-          <h4 class="app-text-white app-heading-thin">Tambah Siswa</h4>
-        </v-btn>
-      </v-col>
     </v-row>
     <v-row>
       <v-col>

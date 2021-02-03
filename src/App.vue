@@ -26,6 +26,25 @@ export default {
     },
   }),
 
+  methods: {
+    async checkRedirection() {
+      this.currentPath = this.$router.history.current.path;
+      const isLoggedIn = await this.$store.dispatch("isLoggedIn");
+      const onLoginPage = this.currentPath.toLowerCase().indexOf("/login") > -1;
+      const onDashboardPage =
+        this.currentPath.toLowerCase().indexOf("/dashboard") > -1;
+
+      if (onLoginPage && isLoggedIn === true) {
+        // Redirect to dashboard
+        this.$router.push("/dashboard");
+      }
+      if (onDashboardPage && isLoggedIn === false) {
+        // Redirect to login
+        this.$router.push("/login");
+      }
+    },
+  },
+
   computed: {
     // To change background color dynamicaly
     adaptBackground() {
@@ -89,36 +108,12 @@ export default {
   watch: {
     $route: async function () {
       this.currentPath = this.$router.history.current.path;
-      const isLoggedIn = await this.$store.dispatch("isLoggedIn");
-      const onLoginPage = this.currentPath.toLowerCase().indexOf("/login") > -1;
-      const onDashboardPage =
-        this.currentPath.toLowerCase().indexOf("/dashboard") > -1;
-      if (onLoginPage && isLoggedIn === true) {
-        // Redirect to dashboard
-        this.$router.push("/dashboard");
-      }
-      if (onDashboardPage && isLoggedIn === false) {
-        // Redirect to login
-        this.$router.push("/login");
-      }
+      await this.checkRedirection();
     },
   },
 
   async mounted() {
-    this.currentPath = this.$router.history.current.path;
-    const isLoggedIn = await this.$store.dispatch("isLoggedIn");
-    const onLoginPage = this.currentPath.toLowerCase().indexOf("/login") > -1;
-    const onDashboardPage =
-      this.currentPath.toLowerCase().indexOf("/dashboard") > -1;
-
-    if (onLoginPage && isLoggedIn === true) {
-      // Redirect to dashboard
-      this.$router.push("/dashboard");
-    }
-    if (onDashboardPage && isLoggedIn === false) {
-      // Redirect to login
-      this.$router.push("/login");
-    }
+    await this.checkRedirection();
   },
 
   components: {

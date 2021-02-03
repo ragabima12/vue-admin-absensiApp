@@ -63,8 +63,14 @@ export default new Vuex.Store({
 
           return true
         }catch(exception){
-          console.warn(exception.message)
-          return false
+          if( exception.name === 'TokenExpiredError' ){
+            const upgradeStatus = state.dispatch('tokenUpgrade', {accessToken: accessToken, refreshToken: refreshToken})
+            if( upgradeStatus.isError ){
+              console.warn(upgradeStatus.reason)
+              return false
+            }
+          }
+          return true 
         }
       }
       return false
@@ -98,6 +104,37 @@ export default new Vuex.Store({
       response.reason = requestResponse.data.reason
       return response
     },
+    tokenUpgrade: async(state, payload) => {
+      const response = {...responseStatus}
+      if(typeof payload !== 'object'){
+        response.isError = true
+        response.reason = `Payload that included tokens must be an object, ${typeof payload} given`
+        return response
+      }
+      
+      const accessToken = payload.accessToken || null
+      const refreshToken = payload.refreshToken || null
+      const isValidToken = accessToken && refreshToken
+      if( !isValidToken ){
+        response.isError = true
+        response.reason = `Tokens must be included, got ${accessToken} on accessToken and ${refreshToken} on refreshToken`
+        return response
+      }
+
+      const requestResponse = await Request.TokenUpgrade(accessToken, refreshToken)
+      if( requestResponse.isError || requestResponse.data.statusCode !== 200 ){
+        response.isError = true
+        response.reason = `Error when requesting to API server with error ${requestResponse.reason}`
+        return response
+      }
+
+      const responseData = requestResponse.data.data
+      const newAccessToken = responseData.access_token
+      const newRefreshToken = responseData.refresh_token
+      Vue.$cookies.set('access-token', newAccessToken)
+      Vue.$cookies.set('refresh-token', newRefreshToken)
+      return response
+    }
   },
   modules: {
   },

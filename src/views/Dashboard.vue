@@ -14,8 +14,10 @@
             v-for="(menuItem, menuItemindex) of menuItems.menus"
             :key="menuItemindex"
           >
-            <v-list-item-title>
-              <h4 class="app-heading-thin">{{ menuItem.title }}</h4>
+            <v-list-item-title @click="onMenuClick(menuItem.action)">
+              <h4 class="app-heading-thin">
+                {{ menuItem.title }}
+              </h4>
             </v-list-item-title>
           </v-list-item>
         </a>
@@ -58,7 +60,7 @@
             src="https://picsum.photos/id/11/500/300"
           />
         </v-avatar>
-        <h4 class="app-text-white app-heading-thin">Agis Putra</h4>
+        <h4 class="app-text-white app-heading-thin">{{ getUserFullname }}</h4>
       </v-chip>
     </v-app-bar>
     <div class="mt-12">
@@ -83,7 +85,13 @@
 </template>
 
 <script>
+import Vue from "vue";
+import VueCookies from "vue-cookies";
 import AppSidebar from "@/components/AppSidebar";
+import { mapState } from "vuex";
+
+Vue.use(VueCookies);
+
 export default {
   data: () => ({
     accountDialog: {
@@ -96,12 +104,21 @@ export default {
       title: "",
       menus: [
         {
-          title: "OK!",
+          title: "Pengaturan Akun",
+          action: "accountSetting",
         },
         {
-          title: "HEI!",
+          title: "Keluar",
+          action: "logout",
         },
       ],
+      menuActions: {
+        logout() {
+          Vue.$cookies.remove("access-token");
+          Vue.$cookies.remove("refresh-token");
+          this.$router.push("/login");
+        },
+      },
     },
   }),
   methods: {
@@ -116,7 +133,19 @@ export default {
     NavigateTo(path) {
       this.$router.push(path).catch(() => {});
     },
+    onMenuClick(actionName) {
+      const actions = this.menuItems.menuActions;
+      const actionIncluded = Object.keys(actions).includes(actionName);
+      if (!actionIncluded)
+        return console.warn(
+          `action "${actionName}" not included on menu actions`
+        );
+      actions[actionName].call(this);
+    },
   },
+  computed: mapState({
+    getUserFullname: (state) => state.userData.fullname,
+  }),
   components: {
     AppSidebar,
   },

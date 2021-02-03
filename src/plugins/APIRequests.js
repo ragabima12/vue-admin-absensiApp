@@ -59,4 +59,29 @@ const Login = async (username, password) => {
 
 }
 
-export default { Login }
+const TokenUpgrade = async(accessToken, refreshToken) => {
+    let response = {...responseStatus}
+    if( typeof accessToken !== 'string' || typeof refreshToken !== 'string'){
+        response.isError = true
+        response.reason = `Access token and Refresh token must be a string, given ${typeof accessToken} on Access Token, and ${typeof refreshToken} on Refresh Token`
+        return response
+    }
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/auth/token`
+    const method = 'GET'
+    const headers = {
+        'Access-Token': accessToken,
+        'Refresh-Token': refreshToken
+    }
+
+    const requestResponse = await Request(url, method, null, headers)
+    if( requestResponse.isError ){
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+    
+    response.data = requestResponse.data
+    return response
+}
+
+export default { Login, TokenUpgrade}

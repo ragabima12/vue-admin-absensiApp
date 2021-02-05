@@ -178,6 +178,9 @@ export default {
   components: {
     CrudDialog,
   },
+  mounted() {
+    console.log(this.$store.getters.getStudentData);
+  },
 };
 </script>
 

@@ -16,6 +16,7 @@ let responseStatus = {
 export default new Vuex.Store({
   state: {
     userData: {},
+    studentData: [],
     sidebar: {
       title: "",
       menus: [],
@@ -38,6 +39,14 @@ export default new Vuex.Store({
       if( typeof payload === 'object' ){
         state.userData = payload
       }
+    },
+    setStudentData: (state, payload) => {
+      if( !Array.isArray(payload) ){
+        console.warn(`[WARN] Payload is not an object, given ${typeof payload}`)
+        return
+      }
+
+      state.studentData = payload
     }
   },
   actions: {
@@ -55,7 +64,7 @@ export default new Vuex.Store({
 
           // Delete unused property of "decodedToken" object
           delete decodedToken.exp
-          delete decodedToken.iat
+          delete decodedToken.iathttps
 
           state.commit('setUserData', decodedToken)
           const isAdmin = state.state.userData.previleges === 'admin'
@@ -134,6 +143,20 @@ export default new Vuex.Store({
       Vue.$cookies.set('access-token', newAccessToken)
       Vue.$cookies.set('refresh-token', newRefreshToken)
       return response
+    },
+    getStudentData: async (state) => {
+      // Get Access Token
+      const accessToken = Vue.$cookies.get('access-token')
+      // Request To API
+      const responseStatus = await Request.GetStudents(accessToken)
+      if( responseStatus.isError ){
+        console.log(responseStatus.reason)
+        return
+      }
+      if( responseStatus.data.statusCode === 200 ){
+          const studentData = responseStatus.data.data
+          state.commit('setStudentData', studentData)
+      }
     }
   },
   modules: {
@@ -142,5 +165,10 @@ export default new Vuex.Store({
     getSidebar: state => {
       return state.sidebar
       },
+
+    getStudentData: state => {
+      return state.studentData
     }
+  },
+    
 })

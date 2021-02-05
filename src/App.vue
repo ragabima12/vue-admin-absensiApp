@@ -114,6 +114,7 @@ export default {
 
   async mounted() {
     await this.checkRedirection();
+    await this.$store.dispatch("getStudentData");
   },
 
   components: {

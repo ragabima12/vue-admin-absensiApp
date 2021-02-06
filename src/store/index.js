@@ -16,7 +16,11 @@ let responseStatus = {
 export default new Vuex.Store({
   state: {
     userData: {},
-    studentData: [],
+    studentData: {
+      students: [],
+      majors: [],
+      grades: []
+    },
     sidebar: {
       title: "",
       menus: [],
@@ -41,7 +45,7 @@ export default new Vuex.Store({
       }
     },
     setStudentData: (state, payload) => {
-      if( !Array.isArray(payload) ){
+      if( typeof payload !== 'object' ){
         console.warn(`[WARN] Payload is not an object, given ${typeof payload}`)
         return
       }
@@ -64,11 +68,15 @@ export default new Vuex.Store({
 
           // Delete unused property of "decodedToken" object
           delete decodedToken.exp
-          delete decodedToken.iathttps
-
+          delete decodedToken.iat
+          
           state.commit('setUserData', decodedToken)
           const isAdmin = state.state.userData.previleges === 'admin'
-          if( !isAdmin ) return false
+          if( !isAdmin ){
+            Vue.$cookies.remove('access-token')
+            Vue.$cookies.remove('refresh-token')
+            return false
+          }
 
           return true
         }catch(exception){
@@ -150,12 +158,39 @@ export default new Vuex.Store({
       // Request To API
       const responseStatus = await Request.GetStudents(accessToken)
       if( responseStatus.isError ){
-        console.log(responseStatus.reason)
+        console.warn(`[WARN] Error fetching student data with error : ${responseStatus.reason}`)
         return
       }
       if( responseStatus.data.statusCode === 200 ){
-          const studentData = responseStatus.data.data
-          state.commit('setStudentData', studentData)
+          let studentData = responseStatus.data.data
+
+          // Parsing student data Array
+          studentData = studentData.filter(student => student.classroom !== undefined)
+          const parsedStudents = studentData.map((student, index)=> {
+            return {
+              nisn: student.nisn,
+              fullname: student.fullname,
+              major: `${student.classroom.split(' ')[1]} ${student.classroom.split(' ')[2]}`,
+              grade: student.classroom.split(' ')[0]
+            }
+          })
+
+          let students = {
+            majors: [],
+            grades: [],
+            students: []
+          }
+          
+          for( let parsedStudent of parsedStudents){
+            students.grades.push(parsedStudent.grade)
+            students.majors.push(parsedStudent.major)
+            students.students.push(parsedStudent)
+          }
+
+          students.majors = Array.from(new Set(students.majors))
+          students.grades = Array.from(new Set(students.grades))
+
+          state.commit('setStudentData', students)
       }
     }
   },

@@ -42,6 +42,9 @@ export default {
         // Redirect to login
         this.$router.push("/login");
       }
+      if (onDashboardPage) {
+        await this.$store.dispatch("getStudentData");
+      }
     },
   },
 
@@ -114,7 +117,6 @@ export default {
 
   async mounted() {
     await this.checkRedirection();
-    await this.$store.dispatch("getStudentData");
   },
 
   components: {

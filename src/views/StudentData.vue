@@ -21,19 +21,24 @@
       </v-col>
     </v-row>
     <v-row>
+      <v-col class="ml-4 pr-0 mr-0" cols="1">
+        <v-icon>mdi-magnify</v-icon>
+      </v-col>
+      <v-col class="pl-0" cols="10">
+        <h4 class="app-heading-thin">Pencarian</h4>
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col class="pa-0 pt-4 px-6" cols="7">
         <v-text-field
+          v-model="searchKeywords"
           height="48px"
           solo
           placeholder="Cari nama siswa"
           rounded
           prepend-inner-icon="mdi-magnify"
+          clearable
         ></v-text-field>
-      </v-col>
-      <v-col class="pa-0 pt-4 px-4" cols="3">
-        <v-btn elevation="2" rounded x-large width="100%" color="primary">
-          <h5 class="app-text-white app-heading-thin">Cari Siswa</h5>
-        </v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -46,10 +51,31 @@
     </v-row>
     <v-row>
       <v-col cols="3" class="ml-4 pr-0 mt-3">
-        <v-select :items="jurusan" rounded label="Jurusan" solo></v-select>
+        <v-select
+          v-model="filterByMajor"
+          :items="getStudentData.majors"
+          rounded
+          label="Jurusan"
+          solo
+        ></v-select>
       </v-col>
       <v-col cols="3" class="ml-4 pr-0 mt-3">
-        <v-select :items="kelas" rounded label="Kelas" solo></v-select>
+        <v-select
+          v-model="filterByGrade"
+          :items="getStudentData.grades"
+          rounded
+          label="Kelas"
+          solo
+        ></v-select>
+      </v-col>
+      <v-col cols="3" class="pl-0 ml-4 pr-0 mt-5">
+        <v-btn
+          icon
+          color="error"
+          v-show="filterByMajor || filterByGrade ? true : false"
+          @click="clearFilter"
+          ><v-icon>mdi-close</v-icon></v-btn
+        >
       </v-col>
       <v-spacer></v-spacer>
     </v-row>
@@ -57,7 +83,7 @@
       <v-col>
         <v-data-table
           :headers="headers"
-          :items="desserts"
+          :items="getStudentData.students"
           :items-per-page="5"
           class="elevation-1"
           @click:row="rowClick1"
@@ -78,92 +104,21 @@ import CrudDialog from "@/components/CrudDialogue";
 export default {
   data() {
     return {
-      jurusan: ["OTKP", "MM", "AKL", "UPW", "BDP", "MANLOG"],
-      kelas: ["10", "11", "12"],
+      filterByMajor: "",
+      filterByGrade: "",
+      searchKeywords: "",
       showCrudDialog: false,
       headers: [
         {
           text: "No",
           align: "start",
           sortable: false,
-          value: "no",
+          value: "number",
         },
         { text: "NISN", value: "nisn" },
-        { text: "Nama Lengkap", value: "nama_lengkap" },
-        { text: "Jurusan", value: "jurusan" },
-        { text: "Kelas", value: "kelas" },
-      ],
-      desserts: [
-        {
-          no: "1",
-          nisn: "0022223344657",
-          nama_lengkap: "Raga Bima Jati Raksa",
-          jurusan: "MM",
-          kelas: 11,
-        },
-        {
-          no: "2",
-          nisn: "0022223344657",
-          nama_lengkap: "Raga Bima Jati Raksa",
-          jurusan: "MM",
-          kelas: 11,
-        },
-        {
-          no: "3",
-          nisn: "0022223344657",
-          nama_lengkap: "Raga Bima Jati Raksa",
-          jurusan: "MM",
-          kelas: 11,
-        },
-        {
-          no: "4",
-          nisn: "0022223344657",
-          nama_lengkap: "Raga Bima Jati Raksa",
-          jurusan: "MM",
-          kelas: 11,
-        },
-        {
-          no: "5",
-          nisn: "0022223344657",
-          nama_lengkap: "Raga Bima Jati Raksa",
-          jurusan: "MM",
-          kelas: 11,
-        },
-        {
-          no: "6",
-          nisn: "0022223344657",
-          nama_lengkap: "Raga Bima Jati Raksa",
-          jurusan: "MM",
-          kelas: 11,
-        },
-        {
-          no: "7",
-          nisn: "0022223344657",
-          nama_lengkap: "Raga Bima Jati Raksa",
-          jurusan: "MM",
-          kelas: 11,
-        },
-        {
-          no: "8",
-          nisn: "0022223344657",
-          nama_lengkap: "Raga Bima Jati Raksa",
-          jurusan: "MM",
-          kelas: 11,
-        },
-        {
-          no: "9",
-          nisn: "0022223344657",
-          nama_lengkap: "Raga Bima Jati Raksa",
-          jurusan: "MM",
-          kelas: 11,
-        },
-        {
-          no: "10",
-          nisn: "0022223344657",
-          nama_lengkap: "Raga Bima Jati Raksa",
-          jurusan: "MM",
-          kelas: 11,
-        },
+        { text: "Nama Lengkap", value: "fullname" },
+        { text: "Jurusan", value: "major" },
+        { text: "Kelas", value: "grade" },
       ],
     };
   },
@@ -174,15 +129,49 @@ export default {
     buttonClick(e) {
       this.showCrudDialog = true;
     },
+    clearFilter() {
+      this.filterByMajor = "";
+      this.filterByGrade = "";
+    },
   },
   components: {
     CrudDialog,
   },
-  mounted() {
-    console.log(this.$store.getters.getStudentData);
+  computed: {
+    getStudentData() {
+      let studentData = { ...this.$store.getters.getStudentData };
+      let filterByMajor = this.filterByMajor;
+      let filterByGrade = this.filterByGrade;
+      let searchKeywords = this.searchKeywords;
+
+      if (filterByMajor) {
+        studentData.students = studentData.students.filter(
+          (student) => student.major.indexOf(filterByMajor) > -1
+        );
+      }
+
+      if (filterByGrade) {
+        studentData.students = studentData.students.filter(
+          (student) => student.grade == filterByGrade
+        );
+      }
+
+      if (searchKeywords) {
+        studentData.students = studentData.students.filter(
+          (student) =>
+            student.fullname
+              .toLowerCase()
+              .indexOf(searchKeywords.toLowerCase()) > -1
+        );
+      }
+
+      studentData.students = studentData.students.map((student, index) => ({
+        number: index + 1,
+        ...student,
+      }));
+
+      return studentData;
+    },
   },
 };
 </script>
-
-<style scoped>
-</style>

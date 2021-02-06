@@ -13,8 +13,9 @@
           <v-list-item
             v-for="(menuItem, menuItemindex) of menuItems.menus"
             :key="menuItemindex"
+            @click="onMenuClick(menuItem.action)"
           >
-            <v-list-item-title @click="onMenuClick(menuItem.action)">
+            <v-list-item-title>
               <h4 class="app-heading-thin">
                 {{ menuItem.title }}
               </h4>

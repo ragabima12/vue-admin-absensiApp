@@ -33,7 +33,20 @@
             <v-container>
               <v-row>
                 <v-col cols="8" offset="2">
-                  <h2>INTENS CONSOLE</h2>
+                  <h2 class="mb-3">INTENS CONSOLE</h2>
+                  <v-alert
+                    transition="scale-transition"
+                    v-for="(error, errorIndex) of isFormErrors"
+                    :key="errorIndex"
+                    dismissible
+                    color="warning"
+                    border="left"
+                    elevation="2"
+                    colored-border
+                    icon="mdi-alert"
+                  >
+                    {{ error }}
+                  </v-alert>
                   <h4 class="mb-6 mt-2 app-text-subheading app-heading-thin">
                     Silahkan login terlebih dahulu
                   </h4>
@@ -96,6 +109,7 @@ export default {
       },
       isShowed: false,
       isSubmitted: false,
+      isFormErrors: [],
     };
   },
 
@@ -120,7 +134,7 @@ export default {
       });
 
       if (response.isError) {
-        alert(response.reason);
+        this.isFormErrors.push(response.reason);
         this.isSubmitted = false;
         return;
       }

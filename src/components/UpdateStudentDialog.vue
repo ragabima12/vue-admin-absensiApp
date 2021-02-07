@@ -25,6 +25,7 @@
                     Nama Lengkap
                   </h4>
                   <v-text-field
+                    v-model="getSelectedStudent.fullname"
                     rounded
                     solo
                     label="Masukan Nama Lengkap"
@@ -33,6 +34,7 @@
                 <v-col class="pb-0" cols="6">
                   <h4 class="app-heading-thin app-text-subheading">NISN</h4>
                   <v-text-field
+                    v-model="getSelectedStudent.nisn"
                     rounded
                     solo
                     label="Masukan NISN"
@@ -45,7 +47,8 @@
                   <v-select
                     rounded
                     solo
-                    :items="jurusan"
+                    :items="getMajors"
+                    v-model="getSelectedStudent.major"
                     label="Jurusan"
                   ></v-select>
                 </v-col>
@@ -54,7 +57,8 @@
                   <v-select
                     rounded
                     solo
-                    :items="kelas"
+                    :items="getGrades"
+                    v-model="getSelectedStudent.grade"
                     label="Kelas"
                   ></v-select>
                 </v-col>
@@ -65,8 +69,8 @@
                     Nama Orangtua
                   </h4>
                   <v-autocomplete
-                    v-model="namaOrtu"
-                    :items="people"
+                    v-model="parent"
+                    :items="parents"
                     solo
                     rounded
                     color="blue-grey lighten-2"
@@ -112,12 +116,13 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   data() {
     return {
-      namaOrtu: [],
+      parent: [],
       name: "Midnight Crew",
-      people: [
+      parents: [
         { name: "Sandra Adams", nik: "202001122332" },
         { name: "Ali Connors", nik: "202001122332" },
         { name: "Trevor Hansen", nik: "202001122332" },
@@ -127,15 +132,6 @@ export default {
         { name: "John Smith", nik: "202001122332" },
         { name: "Sandra Williams", nik: "202001122332" },
       ],
-      kelas: ["10", "11", "12"],
-      jurusan: [
-        "Multimedia",
-        "Otomatisasi & Tata Kelola Perkantoran",
-        "Bisnis Daring Pemasaran",
-        "Usaha Perjalanan Wisata",
-        "Akuntansi Keuangan Lembaga",
-        "Manajemen Logistik",
-      ],
     };
   },
 
@@ -144,6 +140,14 @@ export default {
     isClosedDialog() {
       this.$emit("closed", true);
     },
+  },
+  computed: {
+    ...mapGetters([
+      "getStudents",
+      "getMajors",
+      "getGrades",
+      "getSelectedStudent",
+    ]),
   },
 };
 </script>

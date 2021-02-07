@@ -33,6 +33,8 @@ export default {
       const onLoginPage = this.currentPath.toLowerCase().indexOf("/login") > -1;
       const onDashboardPage =
         this.currentPath.toLowerCase().indexOf("/dashboard") > -1;
+      const onStudentPage =
+        this.currentPath.toLowerCase().indexOf("/dashboard/student") > -1;
 
       if (onLoginPage && isLoggedIn === true) {
         // Redirect to dashboard
@@ -41,9 +43,6 @@ export default {
       if (onDashboardPage && isLoggedIn === false) {
         // Redirect to login
         this.$router.push("/login");
-      }
-      if (onDashboardPage) {
-        await this.$store.dispatch("getStudentData");
       }
     },
   },
@@ -73,10 +72,12 @@ export default {
         ];
         this.sidebar.actions = {
           presence() {
-            return this.$router.push("/dashboard/presence");
+            return this.$router.push("/dashboard/presence").catch(() => {});
           },
           presenceRecap() {
-            return this.$router.push("/dashboard/presence/recap");
+            return this.$router
+              .push("/dashboard/presence/recap")
+              .catch(() => {});
           },
         };
       }
@@ -97,10 +98,12 @@ export default {
         ];
         this.sidebar.actions = {
           studentData() {
-            return this.$router.push("/dashboard/student");
+            return this.$router.push("/dashboard/student").catch(() => {});
           },
           parentData() {
-            return this.$router.push("/dashboard/student/parent");
+            return this.$router
+              .push("/dashboard/student/parent")
+              .catch(() => {});
           },
         };
       }

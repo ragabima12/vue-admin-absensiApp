@@ -41,7 +41,7 @@
         ></v-data-table>
       </v-col>
     </v-row>
-    <ParentDialog
+    <UpdateParentDialog
       @closed="ShowDialogParent = false"
       :isShowedDialog="ShowDialogParent"
     />
@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import ParentDialog from "@/components/ParentDialog";
+import UpdateParentDialog from "@/components/UpdateParentDialog";
 
 export default {
   data() {
@@ -135,7 +135,7 @@ export default {
     };
   },
   components: {
-    ParentDialog,
+    UpdateParentDialog,
   },
   methods: {
     rowClick1(e) {

@@ -26,6 +26,18 @@ export default new Vuex.Store({
       menus: [],
       actions: {},
       selectedMenu: 0
+    },
+    selectedStudent: {
+      id: '',
+      parent_id: '',
+      major: '',
+      grade: '',
+      fullname: '',
+    },
+    selectedParent: {
+      id: '',
+      nik: '',
+      fullname: ''
     }
   },
   mutations: {
@@ -40,54 +52,61 @@ export default new Vuex.Store({
       state.activePage = path
     },
     setUserData: (state, payload) => {
-      if( typeof payload === 'object' ){
+      if (typeof payload === 'object') {
         state.userData = payload
       }
     },
     setStudentData: (state, payload) => {
-      if( typeof payload !== 'object' ){
-        console.warn(`[WARN] Payload is not an object, given ${typeof payload}`)
+      if (typeof payload !== 'object') {
+        console.warn(`[WARN] Payload is not an object, ${typeof payload} given`)
         return
       }
 
       state.studentData = payload
+    },
+    setSelectedStudent: (state, payload) => {
+      if (typeof payload !== 'object') {
+        console.warn(`[WARN] Payload is not an object, ${typeof payload} given`)
+        return
+      }
+      state.selectedStudent = { ...payload }
     }
   },
   actions: {
     isLoggedIn: async (state) => {
       const accessToken = Vue.$cookies.get('access-token')
       const refreshToken = Vue.$cookies.get('refresh-token')
-      const isHavingAccessToken =  accessToken ? true : false
+      const isHavingAccessToken = accessToken ? true : false
       const isHavingRefreshToken = refreshToken ? true : false
       const publicKey = process.env.VUE_APP_PUBLIC_KEY
 
       if (isHavingAccessToken && isHavingRefreshToken) {
-        try{
+        try {
           const decodedToken = await JWT.verify(accessToken, publicKey)
-          if( !decodedToken ) return false
+          if (!decodedToken) return false
 
           // Delete unused property of "decodedToken" object
           delete decodedToken.exp
           delete decodedToken.iat
-          
+
           state.commit('setUserData', decodedToken)
           const isAdmin = state.state.userData.previleges === 'admin'
-          if( !isAdmin ){
+          if (!isAdmin) {
             Vue.$cookies.remove('access-token')
             Vue.$cookies.remove('refresh-token')
             return false
           }
 
           return true
-        }catch(exception){
-          if( exception.name === 'TokenExpiredError' ){
-            const upgradeStatus = state.dispatch('tokenUpgrade', {accessToken: accessToken, refreshToken: refreshToken})
-            if( upgradeStatus.isError ){
+        } catch (exception) {
+          if (exception.name === 'TokenExpiredError') {
+            const upgradeStatus = state.dispatch('tokenUpgrade', { accessToken: accessToken, refreshToken: refreshToken })
+            if (upgradeStatus.isError) {
               console.warn(upgradeStatus.reason)
               return false
             }
           }
-          return true 
+          return true
         }
       }
       return false
@@ -106,11 +125,11 @@ export default new Vuex.Store({
       const isError = requestResponse.isError
       const isSuccess = requestResponse.data.statusCode === 200
 
-      if( !isError && isSuccess ){
+      if (!isError && isSuccess) {
         const responseData = requestResponse.data.data
         const accessToken = responseData.access_token
         const refreshToken = responseData.refresh_token
-        
+
         // Store both tokens to cookie
         Vue.$cookies.set('access-token', accessToken)
         Vue.$cookies.set('refresh-token', refreshToken)
@@ -121,25 +140,25 @@ export default new Vuex.Store({
       response.reason = requestResponse.data.reason
       return response
     },
-    tokenUpgrade: async(state, payload) => {
-      const response = {...responseStatus}
-      if(typeof payload !== 'object'){
+    tokenUpgrade: async (state, payload) => {
+      const response = { ...responseStatus }
+      if (typeof payload !== 'object') {
         response.isError = true
         response.reason = `Payload that included tokens must be an object, ${typeof payload} given`
         return response
       }
-      
+
       const accessToken = payload.accessToken || null
       const refreshToken = payload.refreshToken || null
       const isValidToken = accessToken && refreshToken
-      if( !isValidToken ){
+      if (!isValidToken) {
         response.isError = true
         response.reason = `Tokens must be included, got ${accessToken} on accessToken and ${refreshToken} on refreshToken`
         return response
       }
 
       const requestResponse = await Request.TokenUpgrade(accessToken, refreshToken)
-      if( requestResponse.isError || requestResponse.data.statusCode !== 200 ){
+      if (requestResponse.isError || requestResponse.data.statusCode !== 200) {
         response.isError = true
         response.reason = `Error when requesting to API server with error ${requestResponse.reason}`
         return response
@@ -157,40 +176,42 @@ export default new Vuex.Store({
       const accessToken = Vue.$cookies.get('access-token')
       // Request To API
       const responseStatus = await Request.GetStudents(accessToken)
-      if( responseStatus.isError ){
+      if (responseStatus.isError) {
         console.warn(`[WARN] Error fetching student data with error : ${responseStatus.reason}`)
         return
       }
-      if( responseStatus.data.statusCode === 200 ){
-          let studentData = responseStatus.data.data
+      if (responseStatus.data.statusCode === 200) {
+        let studentData = responseStatus.data.data
 
-          // Parsing student data Array
-          studentData = studentData.filter(student => student.classroom !== undefined)
-          const parsedStudents = studentData.map((student, index)=> {
-            return {
-              nisn: student.nisn,
-              fullname: student.fullname,
-              major: `${student.classroom.split(' ')[1]} ${student.classroom.split(' ')[2]}`,
-              grade: student.classroom.split(' ')[0]
-            }
-          })
-
-          let students = {
-            majors: [],
-            grades: [],
-            students: []
+        // Parsing student data Array
+        studentData = studentData.filter(student => student.classroom !== undefined)
+        const parsedStudents = studentData.map((student) => {
+          return {
+            id: student._id,
+            parent_id: student.parent_id,
+            nisn: student.nisn,
+            fullname: student.fullname,
+            major: `${student.classroom.split(' ')[1]} ${student.classroom.split(' ')[2]}`,
+            grade: student.classroom.split(' ')[0]
           }
-          
-          for( let parsedStudent of parsedStudents){
-            students.grades.push(parsedStudent.grade)
-            students.majors.push(parsedStudent.major)
-            students.students.push(parsedStudent)
-          }
+        })
 
-          students.majors = Array.from(new Set(students.majors))
-          students.grades = Array.from(new Set(students.grades))
+        let students = {
+          majors: [],
+          grades: [],
+          students: []
+        }
 
-          state.commit('setStudentData', students)
+        for (let parsedStudent of parsedStudents) {
+          students.grades.push(parsedStudent.grade)
+          students.majors.push(parsedStudent.major)
+          students.students.push(parsedStudent)
+        }
+
+        students.majors = Array.from(new Set(students.majors))
+        students.grades = Array.from(new Set(students.grades))
+
+        state.commit('setStudentData', students)
       }
     }
   },
@@ -199,11 +220,19 @@ export default new Vuex.Store({
   getters: {
     getSidebar: state => {
       return state.sidebar
-      },
-
-    getStudentData: state => {
-      return state.studentData
+    },
+    getStudents: state => {
+      return state.studentData.students
+    },
+    getMajors: state => {
+      return state.studentData.majors
+    },
+    getGrades: state => {
+      return state.studentData.grades
+    },
+    getSelectedStudent: state => {
+      return state.selectedStudent
     }
   },
-    
+
 })

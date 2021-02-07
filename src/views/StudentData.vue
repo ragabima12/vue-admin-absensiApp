@@ -7,7 +7,7 @@
     </v-row>
     <v-row>
       <v-col cols="3" class="mt-3 ml-2 mb-4 pr-0">
-        <v-btn @click="buttonClick" dark large rounded color="#15D46D"
+        <v-btn dark large rounded color="#15D46D"
           ><v-icon left>mdi-plus</v-icon>
           <h4 class="app-text-white app-heading-thin">Tambah Siswa</h4>
         </v-btn>
@@ -53,19 +53,21 @@
       <v-col cols="3" class="ml-4 pr-0 mt-3">
         <v-select
           v-model="filterByMajor"
-          :items="getStudentData.majors"
+          :items="getMajors"
           rounded
           label="Jurusan"
           solo
+          @change="tableOptions.page = 1"
         ></v-select>
       </v-col>
       <v-col cols="3" class="ml-4 pr-0 mt-3">
         <v-select
           v-model="filterByGrade"
-          :items="getStudentData.grades"
+          :items="getGrades"
           rounded
           label="Kelas"
           solo
+          @change="tableOptions.page = 1"
         ></v-select>
       </v-col>
       <v-col cols="3" class="pl-0 ml-4 pr-0 mt-5">
@@ -83,15 +85,17 @@
       <v-col>
         <v-data-table
           :headers="headers"
-          :items="getStudentData.students"
+          :items="StudentData"
           :items-per-page="5"
           class="elevation-1"
-          @click:row="rowClick1"
+          @click:row="selectStudent"
+          :options.sync="tableOptions"
+          :loading="isLoadingTable"
+          loading-text="Mohon tunggu ..."
         ></v-data-table>
       </v-col>
     </v-row>
-
-    <CrudDialog
+    <UpdateStudentDialog
       @closed="showCrudDialog = false"
       :isShowedDialog="showCrudDialog"
     />
@@ -99,7 +103,8 @@
 </template>
 
 <script>
-import CrudDialog from "@/components/CrudDialogue";
+import UpdateStudentDialog from "@/components/UpdateStudentDialog";
+import { mapGetters } from "vuex";
 
 export default {
   data() {
@@ -108,6 +113,10 @@ export default {
       filterByGrade: "",
       searchKeywords: "",
       showCrudDialog: false,
+      tableOptions: {
+        page: 1,
+      },
+      isLoadingTable: true,
       headers: [
         {
           text: "No",
@@ -123,10 +132,8 @@ export default {
     };
   },
   methods: {
-    rowClick1(e) {
-      this.showCrudDialog = true;
-    },
-    buttonClick(e) {
+    selectStudent(studentData) {
+      this.$store.commit("setSelectedStudent", studentData);
       this.showCrudDialog = true;
     },
     clearFilter() {
@@ -135,43 +142,52 @@ export default {
     },
   },
   components: {
-    CrudDialog,
+    UpdateStudentDialog,
+  },
+  async mounted() {
+    await this.$store.dispatch("getStudentData");
   },
   computed: {
-    getStudentData() {
-      let studentData = { ...this.$store.getters.getStudentData };
-      let filterByMajor = this.filterByMajor;
-      let filterByGrade = this.filterByGrade;
-      let searchKeywords = this.searchKeywords;
+    StudentData() {
+      let studentData = this.$store.getters.getStudents;
+      if (studentData.length > 0) {
+        this.isLoadingTable = false;
+        let filterByMajor = this.filterByMajor;
+        let filterByGrade = this.filterByGrade;
+        let searchKeywords = this.searchKeywords;
 
-      if (filterByMajor) {
-        studentData.students = studentData.students.filter(
-          (student) => student.major.indexOf(filterByMajor) > -1
-        );
+        if (filterByMajor) {
+          studentData = studentData.filter(
+            (student) => student.major.indexOf(filterByMajor) > -1
+          );
+        }
+
+        if (filterByGrade) {
+          studentData = studentData.filter(
+            (student) => student.grade == filterByGrade
+          );
+        }
+
+        if (searchKeywords) {
+          studentData = studentData.filter(
+            (student) =>
+              student.fullname
+                .toLowerCase()
+                .indexOf(searchKeywords.toLowerCase()) > -1
+          );
+        }
+
+        studentData = studentData.map((student, index) => ({
+          number: index + 1,
+          ...student,
+        }));
+
+        return studentData;
       }
-
-      if (filterByGrade) {
-        studentData.students = studentData.students.filter(
-          (student) => student.grade == filterByGrade
-        );
-      }
-
-      if (searchKeywords) {
-        studentData.students = studentData.students.filter(
-          (student) =>
-            student.fullname
-              .toLowerCase()
-              .indexOf(searchKeywords.toLowerCase()) > -1
-        );
-      }
-
-      studentData.students = studentData.students.map((student, index) => ({
-        number: index + 1,
-        ...student,
-      }));
-
-      return studentData;
+      this.isLoadingTable = true;
+      return [];
     },
+    ...mapGetters(["getMajors", "getGrades"]),
   },
 };
 </script>

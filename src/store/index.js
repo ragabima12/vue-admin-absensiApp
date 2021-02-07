@@ -69,7 +69,7 @@ export default new Vuex.Store({
           // Delete unused property of "decodedToken" object
           delete decodedToken.exp
           delete decodedToken.iat
-          
+
           state.commit('setUserData', decodedToken)
           const isAdmin = state.state.userData.previleges === 'admin'
           if( !isAdmin ){

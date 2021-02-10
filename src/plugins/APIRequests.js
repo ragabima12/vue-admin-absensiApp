@@ -108,4 +108,31 @@ const GetStudents = async (accessToken) => {
     return response
 }
 
-export default { Login, TokenUpgrade, GetStudents}
+const UploadExcelFile = async (accessToken, base64) => {
+    let response = {...responseStatus}
+    if( typeof accessToken !== 'string'){
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
+    const method = 'POST'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    const data = {
+        'excel-file': base64
+    }
+
+    const requestResponse = await Request(url, method, data, headers)
+    if( requestResponse.isError ){
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+    
+    response.data = requestResponse.data
+    return response
+}
+
+export default { Login, TokenUpgrade, GetStudents, UploadExcelFile}

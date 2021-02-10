@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import PresenceDialogue from "@/components/PresenceDialogue";
+import PresenceDialogue from "@/components/dialogs/UpdatePresence";
 
 export default {
   data() {

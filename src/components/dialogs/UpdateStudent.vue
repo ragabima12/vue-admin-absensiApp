@@ -10,7 +10,7 @@
       >
         <v-card>
           <v-card-title>
-            <h4 class="app-heading-thin">Edit Data siswa</h4>
+            <h4 class="app-heading-thin">Edit Data Siswa</h4>
             <v-spacer></v-spacer>
             <v-btn icon @click="isClosedDialog">
               <v-icon color="red">mdi-close</v-icon>
@@ -38,6 +38,17 @@
                     rounded
                     solo
                     label="Masukan NISN"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col class="pb-0" cols="12">
+                  <h4 class="app-heading-thin app-text-subheading">ID Card</h4>
+                  <v-text-field
+                    v-model="getSelectedStudent.card_id"
+                    rounded
+                    solo
+                    label="Masukan Nama Lengkap"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -153,4 +164,4 @@ export default {
 </script>
 
 <style scoped>
-</style>
+</style>e

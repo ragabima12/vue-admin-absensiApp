@@ -33,9 +33,6 @@ export default {
       const onLoginPage = this.currentPath.toLowerCase().indexOf("/login") > -1;
       const onDashboardPage =
         this.currentPath.toLowerCase().indexOf("/dashboard") > -1;
-      const onStudentPage =
-        this.currentPath.toLowerCase().indexOf("/dashboard/student") > -1;
-
       if (onLoginPage && isLoggedIn === true) {
         // Redirect to dashboard
         this.$router.push("/dashboard");
@@ -43,6 +40,13 @@ export default {
       if (onDashboardPage && isLoggedIn === false) {
         // Redirect to login
         this.$router.push("/login");
+      }
+    },
+    async dataPreparation() {
+      const onStudentPage =
+        this.currentPath.toLowerCase().indexOf("/dashboard/student") > -1;
+      if (onStudentPage) {
+        await this.$store.dispatch("getStudentData");
       }
     },
   },
@@ -81,7 +85,6 @@ export default {
           },
         };
       }
-
       if (currentPath.toLowerCase().indexOf("/dashboard/student") > -1) {
         this.sidebar.title = "Data Siswa";
         this.sidebar.menus = [
@@ -115,11 +118,13 @@ export default {
     $route: async function () {
       this.currentPath = this.$router.history.current.path;
       await this.checkRedirection();
+      await this.dataPreparation();
     },
   },
 
   async mounted() {
     await this.checkRedirection();
+    await this.dataPreparation();
   },
 
   components: {

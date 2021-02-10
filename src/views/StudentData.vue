@@ -13,7 +13,12 @@
         </v-btn>
       </v-col>
       <v-col cols="4" class="mt-3 ml-7 pl-0 mb-4 pr-0">
-        <v-btn dark large rounded color="#15D46D"
+        <v-btn
+          @click="showStudentExcelUploadDialog"
+          dark
+          large
+          rounded
+          color="#15D46D"
           ><v-icon left>mdi-microsoft-excel</v-icon>
           <h4 class="app-text-white app-heading-thin">Upload Excel</h4>
         </v-btn>
@@ -96,14 +101,19 @@
       </v-col>
     </v-row>
     <UpdateStudentDialog
-      @closed="showCrudDialog = false"
-      :isShowedDialog="showCrudDialog"
+      @closed="showUpdateStudentDialog = false"
+      :isShowedDialog="showUpdateStudentDialog"
+    />
+    <StoreExcelData
+      @closed="showExcelUploadDialog = false"
+      :isShowedDialog="showExcelUploadDialog"
     />
   </div>
 </template>
 
 <script>
-import UpdateStudentDialog from "@/components/UpdateStudentDialog";
+import StoreExcelData from "@/components/dialogs/StoreStudentsExcel";
+import UpdateStudentDialog from "@/components/dialogs/UpdateStudent";
 import { mapGetters } from "vuex";
 
 export default {
@@ -112,7 +122,8 @@ export default {
       filterByMajor: "",
       filterByGrade: "",
       searchKeywords: "",
-      showCrudDialog: false,
+      showUpdateStudentDialog: false,
+      showExcelUploadDialog: false,
       tableOptions: {
         page: 1,
       },
@@ -134,18 +145,19 @@ export default {
   methods: {
     selectStudent(studentData) {
       this.$store.commit("setSelectedStudent", studentData);
-      this.showCrudDialog = true;
+      this.showUpdateStudentDialog = true;
     },
     clearFilter() {
       this.filterByMajor = "";
       this.filterByGrade = "";
     },
+    showStudentExcelUploadDialog() {
+      this.showExcelUploadDialog = true;
+    },
   },
   components: {
     UpdateStudentDialog,
-  },
-  async mounted() {
-    await this.$store.dispatch("getStudentData");
+    StoreExcelData,
   },
   computed: {
     StudentData() {

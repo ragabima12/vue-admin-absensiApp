@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import UpdateParentDialog from "@/components/UpdateParentDialog";
+import UpdateParentDialog from "@/components/dialogs/UpdateParent";
 
 export default {
   data() {

@@ -183,29 +183,16 @@ export default new Vuex.Store({
       if (responseStatus.data.statusCode === 200) {
         let studentData = responseStatus.data.data
 
-        // Parsing student data Array
-        studentData = studentData.filter(student => student.classroom !== undefined)
-        const parsedStudents = studentData.map((student) => {
-          return {
-            id: student._id,
-            parent_id: student.parent_id,
-            nisn: student.nisn,
-            fullname: student.fullname,
-            major: `${student.classroom.split(' ')[1]} ${student.classroom.split(' ')[2]}`,
-            grade: student.classroom.split(' ')[0]
-          }
-        })
-
         let students = {
           majors: [],
           grades: [],
           students: []
         }
 
-        for (let parsedStudent of parsedStudents) {
-          students.grades.push(parsedStudent.grade)
-          students.majors.push(parsedStudent.major)
-          students.students.push(parsedStudent)
+        for (let student of studentData) {
+          students.grades.push(student.grade)
+          students.majors.push(student.major)
+          students.students.push(student)
         }
 
         students.majors = Array.from(new Set(students.majors))

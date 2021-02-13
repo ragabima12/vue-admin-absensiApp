@@ -159,6 +159,13 @@ export default {
     UpdateStudentDialog,
     StoreExcelData,
   },
+  async mounted() {
+    const emptyStudents = !this.$store.getters.getStudents.length;
+    if (emptyStudents) await this.$store.dispatch("getStudentData");
+
+    const emptyParents = !this.$store.getters.getParents.length;
+    if (emptyParents) await this.$store.dispatch("getParentData");
+  },
   computed: {
     StudentData() {
       let studentData = this.$store.getters.getStudents;

@@ -122,28 +122,24 @@ export default {
     async submitForm() {
       this.isSubmitted = true;
       this.resetErrors();
+
       const isValid = this.inputValidation();
       if (!isValid) {
         this.isSubmitted = false;
         return;
       }
-      try {
-        const response = await this.$store.dispatch("login", {
-          username: this.username.value,
-          password: this.password.value,
-        });
-        S;
+      const response = await this.$store.dispatch("login", {
+        username: this.username.value,
+        password: this.password.value,
+      });
 
-        if (response.isError) {
-          this.isFormErrors.push(response.reason);
-          this.isSubmitted = false;
-          return;
-        }
-        this.$router.push("/dashboard");
+      if (response.isError) {
+        this.isFormErrors.push(response.reason);
         this.isSubmitted = false;
-      } catch (exeption) {
-        console.log(exeption.message);
+        return;
       }
+      this.$router.push("/dashboard");
+      this.isSubmitted = false;
     },
 
     inputValidation() {

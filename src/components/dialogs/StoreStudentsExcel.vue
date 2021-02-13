@@ -218,11 +218,10 @@ export default {
       this.responseErrors.parentErrors = errorParents;
       this.responseErrors.studentErrors = errorStudents;
 
-      console.log(errorParents);
-
       // Tampilkan pesan selesai
       this.infoBar.isShowed = true;
       this.infoBar.text = "Selesai Upload";
+      this.fileInput = "";
       this.isUploading = false;
     },
   },

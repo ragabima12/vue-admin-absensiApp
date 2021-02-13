@@ -40,7 +40,7 @@ export default new Vuex.Store({
       nik: '',
       fullname: ''
     },
-    requestError: ''
+    notification: ''
   },
   mutations: {
     setSidebar: (state, payload) => {
@@ -67,7 +67,7 @@ export default new Vuex.Store({
       state.studentData = payload
     },
     setParentData: (state, payload) => {
-      if( !Array.isArray(payload) ){
+      if (!Array.isArray(payload)) {
         console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
         return
       }
@@ -80,11 +80,8 @@ export default new Vuex.Store({
       }
       state.selectedStudent = { ...payload }
     },
-    setRequestError: (state, payload) => {
-      if( typeof payload === 'string' ) state.requestError = payload
-    },
-    clearRequestError: (state) => {
-      state.requestError = ''
+    setNotification: (state, payload) => {
+      if (typeof payload === 'string') state.notification = payload
     }
   },
   actions: {
@@ -108,6 +105,7 @@ export default new Vuex.Store({
           const isAllowedUsers = ['admin', 'superadmin']
           const isAdmin = isAllowedUsers.includes(state.state.userData.previleges)
           if (!isAdmin) {
+            state.commit('setNotification', `Akses ditolak, akun yang anda gunakan tidak diperbolehkan mengakses fitur ini`)
             Vue.$cookies.remove('access-token')
             Vue.$cookies.remove('refresh-token')
             return false
@@ -138,26 +136,30 @@ export default new Vuex.Store({
       }
 
       try {
-        requestResponse = await Request.Login(username, password)
+        const requestResponse = await Request.Login(username, password)
         const isError = requestResponse.isError
         const isSuccess = requestResponse.data.statusCode === 200
-  
+
         if (!isError && isSuccess) {
           const responseData = requestResponse.data.data
           const accessToken = responseData.access_token
           const refreshToken = responseData.refresh_token
-  
+
           // Store both tokens to cookie
           Vue.$cookies.set('access-token', accessToken)
           Vue.$cookies.set('refresh-token', refreshToken)
           return response
         }
-  
+
         response.isError = true
         response.reason = requestResponse.data.reason
         return response
-      }catch(exception) {
-        state.commit('setRequestError', exception.message)
+      } catch (exception) {
+        state.commit('setNotification', `Terjadi kesalahan saat menghubungi server, ${exception.message}`)
+        response.isError = true
+        response.reason = exception.message
+        return response
+
       }
 
     },
@@ -178,66 +180,87 @@ export default new Vuex.Store({
         return response
       }
 
-      const requestResponse = await Request.TokenUpgrade(accessToken, refreshToken)
-      if (requestResponse.isError || requestResponse.data.statusCode !== 200) {
+      try {
+        const requestResponse = await Request.TokenUpgrade(accessToken, refreshToken)
+        if (requestResponse.isError || requestResponse.data.statusCode !== 200) {
+          response.isError = true
+          response.reason = `Terjadi kesalahan saat memperbaharui token, ${requestResponse.reason}`
+          state.commit('setNotification', response.reason)
+          return response
+        }
+
+        const responseData = requestResponse.data.data
+        const newAccessToken = responseData.access_token
+        const newRefreshToken = responseData.refresh_token
+        Vue.$cookies.set('access-token', newAccessToken)
+        Vue.$cookies.set('refresh-token', newRefreshToken)
+        return response
+      } catch (exception) {
         response.isError = true
-        response.reason = `Error when requesting to API server with error ${requestResponse.reason}`
+        response.reason = exception.message
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui token, ${exception.message}`)
         return response
       }
 
-      const responseData = requestResponse.data.data
-      const newAccessToken = responseData.access_token
-      const newRefreshToken = responseData.refresh_token
-      Vue.$cookies.set('access-token', newAccessToken)
-      Vue.$cookies.set('refresh-token', newRefreshToken)
-      return response
     },
     getStudentData: async (state) => {
-      // Get Access Token
+      const isLoggedIn = await state.dispatch('isLoggedIn')
+      if (!isLoggedIn) return
+
       const accessToken = Vue.$cookies.get('access-token')
-      // Request To API
-      const responseStatus = await Request.GetStudents(accessToken)
-      if (responseStatus.isError) {
-        console.warn(`[WARN] Error fetching student data with error : ${responseStatus.reason}`)
-        return
-      }
-      if (responseStatus.data.statusCode === 200) {
-        let studentData = responseStatus.data.data
-
-        let students = {
-          majors: [],
-          grades: [],
-          students: []
+      try {
+        const responseStatus = await Request.GetStudents(accessToken)
+        if (responseStatus.isError) {
+          state.commit('setNotification', `Terjadi kesalahan saat merequest data siswa, ${responseStatus.reason}`)
+          return
         }
+        if (responseStatus.data.statusCode === 200) {
+          let studentData = responseStatus.data.data
 
-        for (let student of studentData) {
-          students.grades.push(student.grade)
-          students.majors.push(student.major)
-          students.students.push(student)
+          let students = {
+            majors: [],
+            grades: [],
+            students: []
+          }
+
+          for (let student of studentData) {
+            students.grades.push(student.grade)
+            students.majors.push(student.major)
+            students.students.push(student)
+          }
+
+          students.majors = Array.from(new Set(students.majors))
+          students.grades = Array.from(new Set(students.grades))
+
+          state.commit('setStudentData', students)
         }
-
-        students.majors = Array.from(new Set(students.majors))
-        students.grades = Array.from(new Set(students.grades))
-
-        state.commit('setStudentData', students)
+      } catch (exception) {
+        state.commit('setNotification', `Terjadi kesalahan saat merequest data siswa, ${exception.message}`)
       }
     },
-    getParentData: async(state) => {
-      // Get Access Token
-      const accessToken = Vue.$cookies.get('access-token')
-      // Request To API
-      const responseStatus = await Request.GetParents(accessToken)
-      if (responseStatus.isError) {
-        console.warn(`[WARN] Error fetching student data with error : ${responseStatus.reason}`)
-        return
-      }
+    getParentData: async (state) => {
+      const isLoggedIn = await state.dispatch('isLoggedIn')
+      if (!isLoggedIn) return
 
-      if (responseStatus.data.statusCode === 200) {
-        let parents = responseStatus.data.data
-        state.commit('setParentData', parents)
+      const accessToken = Vue.$cookies.get('access-token')
+      try {
+        const responseStatus = await Request.GetParents(accessToken)
+        if (responseStatus.isError) {
+          state.commit('setNotification', `Terjadi kesalahan saat merequest data orang tua, ${responseStatus.reason}`)
+          return
+        }
+
+        if (responseStatus.data.statusCode === 200) {
+          let parents = responseStatus.data.data
+          state.commit('setParentData', parents)
+        }
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat merequest data orang tua, ${exception.message}`)
+
       }
     }
-    
+
   },
   modules: {
   },
@@ -260,7 +283,9 @@ export default new Vuex.Store({
     getParents: state => {
       return state.parentData
     },
-    getRequestError: state => state.requestError
+    getNotification: state => {
+      return state.notification
+    }
   },
 
 })

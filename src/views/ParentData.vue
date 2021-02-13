@@ -145,6 +145,10 @@ export default {
       this.ShowDialogParent = true;
     },
   },
+  async mounted() {
+    const emptyParents = !this.$store.getters.getParents.length;
+    if (emptyParents) await this.$store.dispatch("getParentData");
+  },
 };
 </script>
 

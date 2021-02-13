@@ -1,15 +1,10 @@
 <template>
-  <v-app
-    v-if="currentPath.toLowerCase().indexOf('/dashboard') > -1"
-    :class="adaptBackground"
-  >
-    <Dashboard :sidebarMenus="sidebarMenus"></Dashboard>
-    <v-snackbar v-model="notification.isShowed">
-      {{ notification.text }}
-    </v-snackbar>
-  </v-app>
-  <v-app v-else :class="adaptBackground">
-    <router-view />
+  <v-app :class="adaptBackground">
+    <Dashboard
+      v-if="currentPath.toLowerCase().indexOf('/dashboard') > -1"
+      :sidebarMenus="sidebarMenus"
+    ></Dashboard>
+    <router-view v-else />
     <v-snackbar v-model="notification.isShowed">
       {{ notification.text }}
       <template v-slot:action="{ attrs }">
@@ -49,39 +44,24 @@ export default {
       location.reload();
     },
 
-    async checkRedirection() {
+    async checkIsLoggedIn() {
       this.currentPath = this.$router.history.current.path;
       const isLoggedIn = await this.$store.dispatch("isLoggedIn");
       const onLoginPage = this.currentPath.toLowerCase().indexOf("/login") > -1;
       const onDashboardPage =
         this.currentPath.toLowerCase().indexOf("/dashboard") > -1;
-      if (onLoginPage && isLoggedIn === true) {
-        // Redirect to dashboard
-        this.$router.push("/dashboard");
-      }
-      if (onDashboardPage && isLoggedIn === false) {
-        // Redirect to login
-        this.$router.push("/login");
-      }
-    },
-    async dataPreparation() {
-      const onStudentPage =
-        this.currentPath.toLowerCase().indexOf("/dashboard/student") > -1;
-      if (onStudentPage) {
-        await this.$store.dispatch("getStudentData");
-        await this.$store.dispatch("getParentData");
-      }
+      if (onLoginPage && isLoggedIn) this.$router.push("/dashboard");
+      if (onDashboardPage && !isLoggedIn) this.$router.push("/login");
     },
 
     showNotification(text) {
       this.notification.isShowed = true;
       this.notification.text = text;
-      console.log(this.notification);
     },
   },
 
   computed: {
-    ...mapGetters(["getRequestError"]),
+    ...mapGetters(["getNotification"]),
 
     // To change background color dynamicaly
     adaptBackground() {
@@ -116,6 +96,7 @@ export default {
           },
         };
       }
+
       if (currentPath.toLowerCase().indexOf("/dashboard/student") > -1) {
         this.sidebar.title = "Data Siswa";
         this.sidebar.menus = [
@@ -148,20 +129,18 @@ export default {
   watch: {
     $route: async function () {
       this.currentPath = this.$router.history.current.path;
-      await this.checkRedirection();
-      await this.dataPreparation();
+      await this.checkIsLoggedIn();
     },
 
-    getRequestError: function (errText) {
-      if (typeof errText === "string") {
-        this.showNotification(errText);
+    getNotification: function (notificationText) {
+      if (typeof notificationText === "string") {
+        this.showNotification(notificationText);
       }
     },
   },
 
   async mounted() {
-    await this.checkRedirection();
-    await this.dataPreparation();
+    await this.checkIsLoggedIn();
   },
 
   components: {

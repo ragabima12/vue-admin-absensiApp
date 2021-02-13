@@ -4,29 +4,51 @@
     :class="adaptBackground"
   >
     <Dashboard :sidebarMenus="sidebarMenus"></Dashboard>
+    <v-snackbar v-model="notification.isShowed">
+      {{ notification.text }}
+    </v-snackbar>
   </v-app>
   <v-app v-else :class="adaptBackground">
     <router-view />
+    <v-snackbar v-model="notification.isShowed">
+      {{ notification.text }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="blue" text v-bind="attrs" @click="refreshPage"
+          >Refresh</v-btn
+        >
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
 <script>
 import Dashboard from "@/views/Dashboard";
+import { mapGetters } from "vuex";
 
 export default {
   name: "App",
 
-  data: () => ({
-    currentPath: "",
-    sidebar: {
-      title: "",
-      menus: [],
-      actions: {},
-      selectedMenu: 0,
-    },
-  }),
+  data() {
+    return {
+      currentPath: "",
+      sidebar: {
+        title: "",
+        menus: [],
+        actions: {},
+        selectedMenu: 0,
+      },
+      notification: {
+        isShowed: false,
+        text: "",
+      },
+    };
+  },
 
   methods: {
+    refreshPage() {
+      location.reload();
+    },
+
     async checkRedirection() {
       this.currentPath = this.$router.history.current.path;
       const isLoggedIn = await this.$store.dispatch("isLoggedIn");
@@ -50,9 +72,17 @@ export default {
         await this.$store.dispatch("getParentData");
       }
     },
+
+    showNotification(text) {
+      this.notification.isShowed = true;
+      this.notification.text = text;
+      console.log(this.notification);
+    },
   },
 
   computed: {
+    ...mapGetters(["getRequestError"]),
+
     // To change background color dynamicaly
     adaptBackground() {
       if (this.currentPath == "/login") return "app-bg-white";
@@ -120,6 +150,12 @@ export default {
       this.currentPath = this.$router.history.current.path;
       await this.checkRedirection();
       await this.dataPreparation();
+    },
+
+    getRequestError: function (errText) {
+      if (typeof errText === "string") {
+        this.showNotification(errText);
+      }
     },
   },
 

@@ -127,19 +127,23 @@ export default {
         this.isSubmitted = false;
         return;
       }
+      try {
+        const response = await this.$store.dispatch("login", {
+          username: this.username.value,
+          password: this.password.value,
+        });
+        S;
 
-      const response = await this.$store.dispatch("login", {
-        username: this.username.value,
-        password: this.password.value,
-      });
-
-      if (response.isError) {
-        this.isFormErrors.push(response.reason);
+        if (response.isError) {
+          this.isFormErrors.push(response.reason);
+          this.isSubmitted = false;
+          return;
+        }
+        this.$router.push("/dashboard");
         this.isSubmitted = false;
-        return;
+      } catch (exeption) {
+        console.log(exeption.message);
       }
-      this.$router.push("/dashboard");
-      this.isSubmitted = false;
     },
 
     inputValidation() {

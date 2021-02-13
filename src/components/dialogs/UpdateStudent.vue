@@ -88,17 +88,13 @@
                     color="blue-grey lighten-2"
                     label="Nama Orangtua"
                     clearable
+                    no-filter
                   >
                     <template v-slot:selection="data">
                       {{ data.item.fullname }}
                     </template>
                     <template v-slot:item="data">
-                      <template v-if="typeof data.item !== 'object'">
-                        <v-list-item-content
-                          v-text="data.item"
-                        ></v-list-item-content>
-                      </template>
-                      <template v-else>
+                      <template>
                         <v-list-item-content>
                           <v-list-item-title
                             v-html="data.item.fullname"
@@ -144,18 +140,21 @@ export default {
     },
   },
   computed: {
-    ...mapGetters([
-      "getStudents",
-      "getMajors",
-      "getGrades",
-      "getSelectedStudent",
-      "getParents",
-    ]),
-  },
+    ...mapGetters(["getMajors", "getGrades", "getSelectedStudent"]),
+    getParents() {
+      let parents = this.$store.getters.getParents;
+      if (this.search) {
+        return parents.filter(
+          (parent) =>
+            parent.fullname.toLowerCase().indexOf(this.search.toLowerCase()) >
+              -1 ||
+            parent.unique_credential
+              .toLowerCase()
+              .indexOf(this.search.toLowerCase()) > -1
+        );
+      }
 
-  watch: {
-    search(val) {
-      console.log(val);
+      return parents;
     },
   },
 };

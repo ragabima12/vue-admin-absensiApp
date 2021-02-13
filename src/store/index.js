@@ -39,7 +39,8 @@ export default new Vuex.Store({
       id: '',
       nik: '',
       fullname: ''
-    }
+    },
+    requestError: ''
   },
   mutations: {
     setSidebar: (state, payload) => {
@@ -78,6 +79,12 @@ export default new Vuex.Store({
         return
       }
       state.selectedStudent = { ...payload }
+    },
+    setRequestError: (state, payload) => {
+      if( typeof payload === 'string' ) state.requestError = payload
+    },
+    clearRequestError: (state) => {
+      state.requestError = ''
     }
   },
   actions: {
@@ -98,7 +105,8 @@ export default new Vuex.Store({
           delete decodedToken.iat
 
           state.commit('setUserData', decodedToken)
-          const isAdmin = state.state.userData.previleges === 'admin'
+          const isAllowedUsers = ['admin', 'superadmin']
+          const isAdmin = isAllowedUsers.includes(state.state.userData.previleges)
           if (!isAdmin) {
             Vue.$cookies.remove('access-token')
             Vue.$cookies.remove('refresh-token')
@@ -129,24 +137,29 @@ export default new Vuex.Store({
         return response
       }
 
-      let requestResponse = await Request.Login(username, password)
-      const isError = requestResponse.isError
-      const isSuccess = requestResponse.data.statusCode === 200
-
-      if (!isError && isSuccess) {
-        const responseData = requestResponse.data.data
-        const accessToken = responseData.access_token
-        const refreshToken = responseData.refresh_token
-
-        // Store both tokens to cookie
-        Vue.$cookies.set('access-token', accessToken)
-        Vue.$cookies.set('refresh-token', refreshToken)
+      try {
+        requestResponse = await Request.Login(username, password)
+        const isError = requestResponse.isError
+        const isSuccess = requestResponse.data.statusCode === 200
+  
+        if (!isError && isSuccess) {
+          const responseData = requestResponse.data.data
+          const accessToken = responseData.access_token
+          const refreshToken = responseData.refresh_token
+  
+          // Store both tokens to cookie
+          Vue.$cookies.set('access-token', accessToken)
+          Vue.$cookies.set('refresh-token', refreshToken)
+          return response
+        }
+  
+        response.isError = true
+        response.reason = requestResponse.data.reason
         return response
+      }catch(exception) {
+        state.commit('setRequestError', exception.message)
       }
 
-      response.isError = true
-      response.reason = requestResponse.data.reason
-      return response
     },
     tokenUpgrade: async (state, payload) => {
       const response = { ...responseStatus }
@@ -246,7 +259,8 @@ export default new Vuex.Store({
     },
     getParents: state => {
       return state.parentData
-    }
+    },
+    getRequestError: state => state.requestError
   },
 
 })

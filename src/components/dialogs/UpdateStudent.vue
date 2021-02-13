@@ -80,17 +80,18 @@
                     Nama Orangtua
                   </h4>
                   <v-autocomplete
-                    v-model="parent"
-                    :items="parents"
+                    v-model="getSelectedStudent.parent"
+                    :items="getParents"
+                    :search-input.sync="search"
                     solo
                     rounded
                     color="blue-grey lighten-2"
                     label="Nama Orangtua"
-                    item-text="name"
-                    item-value="name"
                     clearable
-                    hide-no-data
                   >
+                    <template v-slot:selection="data">
+                      {{ data.item.fullname }}
+                    </template>
                     <template v-slot:item="data">
                       <template v-if="typeof data.item !== 'object'">
                         <v-list-item-content
@@ -100,10 +101,10 @@
                       <template v-else>
                         <v-list-item-content>
                           <v-list-item-title
-                            v-html="data.item.name"
+                            v-html="data.item.fullname"
                           ></v-list-item-title>
                           <v-list-item-subtitle
-                            v-html="data.item.nik"
+                            v-html="data.item.unique_credential"
                           ></v-list-item-subtitle>
                         </v-list-item-content>
                       </template>
@@ -131,18 +132,8 @@ import { mapGetters } from "vuex";
 export default {
   data() {
     return {
-      parent: [],
       name: "Midnight Crew",
-      parents: [
-        { name: "Sandra Adams", nik: "202001122332" },
-        { name: "Ali Connors", nik: "202001122332" },
-        { name: "Trevor Hansen", nik: "202001122332" },
-        { name: "Tucker Smith", nik: "202001122332" },
-        { name: "Britta Holt", nik: "202001122332" },
-        { name: "Jane Smith ", nik: "202001122332" },
-        { name: "John Smith", nik: "202001122332" },
-        { name: "Sandra Williams", nik: "202001122332" },
-      ],
+      search: "",
     };
   },
 
@@ -158,7 +149,14 @@ export default {
       "getMajors",
       "getGrades",
       "getSelectedStudent",
+      "getParents",
     ]),
+  },
+
+  watch: {
+    search(val) {
+      console.log(val);
+    },
   },
 };
 </script>

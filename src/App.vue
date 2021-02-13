@@ -47,6 +47,7 @@ export default {
         this.currentPath.toLowerCase().indexOf("/dashboard/student") > -1;
       if (onStudentPage) {
         await this.$store.dispatch("getStudentData");
+        await this.$store.dispatch("getParentData");
       }
     },
   },

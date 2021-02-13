@@ -21,6 +21,7 @@ export default new Vuex.Store({
       majors: [],
       grades: []
     },
+    parentData: [],
     sidebar: {
       title: "",
       menus: [],
@@ -63,6 +64,13 @@ export default new Vuex.Store({
       }
 
       state.studentData = payload
+    },
+    setParentData: (state, payload) => {
+      if( !Array.isArray(payload) ){
+        console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
+        return
+      }
+      state.parentData = payload
     },
     setSelectedStudent: (state, payload) => {
       if (typeof payload !== 'object') {
@@ -200,7 +208,23 @@ export default new Vuex.Store({
 
         state.commit('setStudentData', students)
       }
+    },
+    getParentData: async(state) => {
+      // Get Access Token
+      const accessToken = Vue.$cookies.get('access-token')
+      // Request To API
+      const responseStatus = await Request.GetParents(accessToken)
+      if (responseStatus.isError) {
+        console.warn(`[WARN] Error fetching student data with error : ${responseStatus.reason}`)
+        return
+      }
+
+      if (responseStatus.data.statusCode === 200) {
+        let parents = responseStatus.data.data
+        state.commit('setParentData', parents)
+      }
     }
+    
   },
   modules: {
   },
@@ -219,6 +243,9 @@ export default new Vuex.Store({
     },
     getSelectedStudent: state => {
       return state.selectedStudent
+    },
+    getParents: state => {
+      return state.parentData
     }
   },
 

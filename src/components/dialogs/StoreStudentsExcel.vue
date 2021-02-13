@@ -42,6 +42,7 @@
                 <v-col cols="12"
                   ><h5 class="app-heading-thin mb-2">Unggah excel disini</h5>
                   <v-file-input
+                    :disabled="isUploading"
                     show-size
                     placeholder="Upload Excel"
                     solo
@@ -51,6 +52,84 @@
                     v-model="fileInput"
                   ></v-file-input
                 ></v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12">
+                  <v-expansion-panels
+                    v-if="responseErrors.parentErrors.length > 0"
+                    accordion
+                  >
+                    <v-expansion-panel>
+                      <v-expansion-panel-header disable-icon-rotate>
+                        Ditemukan {{ responseErrors.parentErrors.length }} saat
+                        menyimpan data orangtua
+                        <template v-slot:actions>
+                          <v-icon color="error">mdi-alert-circle</v-icon>
+                        </template>
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content>
+                        <v-card max-height="400" class="overflow-y-auto">
+                          <v-list-item
+                            v-for="(
+                              parentErr, parentErrIndex
+                            ) of responseErrors.studentErrors"
+                            :key="parentErrIndex"
+                          >
+                            <v-list-item-icon>
+                              <v-icon color="error">mdi-alert</v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                              <v-list-item-content-title>
+                                {{ parentErr.errorType }}
+                              </v-list-item-content-title>
+                              <v-list-item-content-subtitle>
+                                {{ parentErr.reason }}
+                              </v-list-item-content-subtitle>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-card>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
+                  </v-expansion-panels>
+                </v-col>
+                <v-col cols="12">
+                  <v-expansion-panels
+                    v-if="responseErrors.studentErrors.length > 0"
+                    accordion
+                  >
+                    <v-expansion-panel>
+                      <v-expansion-panel-header disable-icon-rotate>
+                        Ditemukan {{ responseErrors.studentErrors.length }} saat
+                        menyimpan data siswa
+                        <template v-slot:actions>
+                          <v-icon color="error">mdi-alert-circle</v-icon>
+                        </template>
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content>
+                        <v-card max-height="250" class="overflow-y-auto">
+                          <v-list-item
+                            v-for="(
+                              studentErr, studentErrIndex
+                            ) of responseErrors.studentErrors"
+                            :key="studentErrIndex"
+                          >
+                            <v-list-item-icon>
+                              <v-icon color="error">mdi-alert</v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                              <v-list-item-content-title>
+                                {{ studentErr.errorType }}
+                              </v-list-item-content-title>
+                              <v-list-item-content-subtitle>
+                                {{ studentErr.reason }}
+                              </v-list-item-content-subtitle>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-card>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
+                  </v-expansion-panels>
+                </v-col>
               </v-row>
             </v-container>
           </v-card-text>
@@ -68,6 +147,9 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-snackbar v-model="infoBar.isShowed">
+        {{ infoBar.text }}
+      </v-snackbar>
     </v-row>
   </div>
 </template>
@@ -83,8 +165,16 @@ Vue.use(VueCookies);
 export default {
   data() {
     return {
+      responseErrors: {
+        parentErrors: [],
+        studentErrors: [],
+      },
       fileInput: "",
       isUploading: false,
+      infoBar: {
+        isShowed: false,
+        text: "",
+      },
     };
   },
 
@@ -95,9 +185,6 @@ export default {
     },
 
     async sendFileExcel() {
-      if (this.isUploading) {
-        return alert("Sedang mengupload file");
-      }
       const readFile = (fileBlob) =>
         new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -116,11 +203,26 @@ export default {
 
       this.isUploading = true;
 
+      // Tampilkan pesan sedang upload
+      this.infoBar.isShowed = true;
+      this.infoBar.text = "Sedang Upload";
+
       const UploadResult = await Request.UploadExcelFile(
         accessToken,
         base64ExcelFile
       );
 
+      let errorParents = UploadResult.data.data.parentStoreErrors;
+      let errorStudents = UploadResult.data.data.studentStoreErrors;
+
+      this.responseErrors.parentErrors = errorParents;
+      this.responseErrors.studentErrors = errorStudents;
+
+      console.log(errorParents);
+
+      // Tampilkan pesan selesai
+      this.infoBar.isShowed = true;
+      this.infoBar.text = "Selesai Upload";
       this.isUploading = false;
     },
   },

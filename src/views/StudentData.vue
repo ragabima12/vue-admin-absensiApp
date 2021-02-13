@@ -162,6 +162,8 @@ export default {
   computed: {
     StudentData() {
       let studentData = this.$store.getters.getStudents;
+      let parentData = this.$store.getters.getParents;
+
       if (studentData.length > 0) {
         this.isLoadingTable = false;
         let filterByMajor = this.filterByMajor;
@@ -189,10 +191,20 @@ export default {
           );
         }
 
+        // Data Numbering
         studentData = studentData.map((student, index) => ({
           number: index + 1,
           ...student,
         }));
+
+        // Matching with pardent data
+        studentData = studentData.map((student) => {
+          let parent = parentData.filter(
+            (parent) => parent._id === student.parent_id
+          );
+          parent = parent[0];
+          return { parent: parent, ...student };
+        });
 
         return studentData;
       }

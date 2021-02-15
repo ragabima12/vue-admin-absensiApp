@@ -2,14 +2,14 @@
   <div>
     <v-row>
       <v-col class="ml-3" cols="12">
-        <h2 class="app-heading-thin">Data Orangtua</h2>
+        <h2 class="app-heading-thin">Data Orang Tua</h2>
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="4" class="mt-3 ml-2 mb-4 pr-0">
         <v-btn dark large color="#15D46D"
           ><v-icon left>mdi-plus</v-icon>
-          <h4 class="app-text-white app-heading-thin">Tambah Orangtua</h4>
+          <h4 class="app-text-white app-heading-thin">Tambah Orang Tua</h4>
         </v-btn>
       </v-col>
     </v-row>
@@ -27,8 +27,9 @@
           v-model="search"
           height="48px"
           solo
-          placeholder="Cari nama orangtua"
+          placeholder="Cari nama orang tua"
           prepend-inner-icon="mdi-magnify"
+          clearable
         ></v-text-field>
       </v-col>
     </v-row>
@@ -40,7 +41,6 @@
           :items="parents"
           :items-per-page="5"
           class="elevation-1"
-          @click:row="showUpdateParentDialog"
           :loading="isLoadingTable"
         >
           <template v-slot:[`item.email`]="{ item }">
@@ -49,6 +49,11 @@
 
           <template v-slot:[`item.phone_number`]="{ item }">
             {{ item.phone_number || "-" }}
+          </template>
+          <template v-slot:[`item.action`]="{ item }">
+            <v-btn color="primary" dense @click="showUpdateParentDialog(item)"
+              >Edit</v-btn
+            >
           </template>
         </v-data-table>
       </v-col>
@@ -77,10 +82,11 @@ export default {
           sortable: false,
           value: "number",
         },
-        { text: "Nama Orangtua", value: "fullname" },
+        { text: "Nama Orang Tua", value: "fullname" },
         { text: "Nomor Induk Keluarga", value: "unique_credential" },
         { text: "Email", value: "email" },
         { text: "Phone Number", value: "phone_number" },
+        { text: "Aksi", value: "action" },
       ],
     };
   },
@@ -89,8 +95,14 @@ export default {
   },
   methods: {
     showUpdateParentDialog(parent) {
-      let { fullname, unique_credential, id } = parent;
-      parent = { id: id, fullname: fullname, nik: unique_credential };
+      let { fullname, unique_credential, id, email, phone_number } = parent;
+      parent = {
+        id: id,
+        fullname: fullname,
+        nik: unique_credential,
+        email: email,
+        phone_number: phone_number,
+      };
       this.$store.commit("setSelectedParent", parent);
       this.ShowDialogParent = true;
     },

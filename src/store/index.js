@@ -7,11 +7,11 @@ import JWT from 'jsonwebtoken'
 Vue.use(Vuex)
 Vue.use(VueCookies)
 
-let responseStatus = {
-  isError: false,
-  data: null,
-  reason: null
-}
+let responseStatus = ({ data, isError, reason }) => ({
+  isError: isError || false,
+  data: data || null,
+  reason: reason || null
+})
 
 export default new Vuex.Store({
   state: {
@@ -38,7 +38,9 @@ export default new Vuex.Store({
     selectedParent: {
       id: '',
       nik: '',
-      fullname: ''
+      fullname: '',
+      email: '',
+      phone_number: ''
     },
     notification: ''
   },
@@ -121,7 +123,7 @@ export default new Vuex.Store({
           return true
         } catch (exception) {
           if (exception.name === 'TokenExpiredError') {
-            const upgradeStatus = state.dispatch('tokenUpgrade', { accessToken: accessToken, refreshToken: refreshToken })
+            const upgradeStatus = await state.dispatch('tokenUpgrade', { accessToken: accessToken, refreshToken: refreshToken })
             if (upgradeStatus.isError) {
               console.warn(upgradeStatus.reason)
               return false
@@ -133,14 +135,9 @@ export default new Vuex.Store({
       return false
     },
     login: async (state, payload) => {
-      let response = { ...responseStatus }
       const username = payload.username
       const password = payload.password
-      if (!username || !password) {
-        response.isError = true
-        response.reason = `Username or Password must be a string. got ${typeof username} for username and ${typeof password} on password`
-        return response
-      }
+      if (!username || !password) return responseStatus({ data: null, isError: true, reason: `Username or Password must be a string. got ${typeof username} for username and ${typeof password} on password` })
 
       try {
         const requestResponse = await Request.Login(username, password)
@@ -155,45 +152,32 @@ export default new Vuex.Store({
           // Store both tokens to cookie
           Vue.$cookies.set('access-token', accessToken)
           Vue.$cookies.set('refresh-token', refreshToken)
-          return response
+          return responseStatus({ data: null, isError: false, reason: null })
         }
 
-        response.isError = true
-        response.reason = requestResponse.data.reason
-        return response
+        return responseStatus({ data: null, isError: true, reason: requestResponse.data.reason })
       } catch (exception) {
         state.commit('setNotification', `Terjadi kesalahan saat menghubungi server, ${exception.message}`)
-        response.isError = true
-        response.reason = exception.message
-        return response
+        return responseStatus({ data: null, isError: true, reason: exception.message })
 
       }
 
     },
     tokenUpgrade: async (state, payload) => {
-      const response = { ...responseStatus }
-      if (typeof payload !== 'object') {
-        response.isError = true
-        response.reason = `Payload that included tokens must be an object, ${typeof payload} given`
-        return response
-      }
+      if (typeof payload !== 'object') return responseStatus({ data: null, isError: true, reason: `Payload that included tokens must be an object, ${typeof payload} given` })
 
       const accessToken = payload.accessToken || null
       const refreshToken = payload.refreshToken || null
       const isValidToken = accessToken && refreshToken
-      if (!isValidToken) {
-        response.isError = true
-        response.reason = `Tokens must be included, got ${accessToken} on accessToken and ${refreshToken} on refreshToken`
-        return response
-      }
+      if (!isValidToken) return responseStatus({ data: null, isError: true, reason: `Tokens must be included, got ${accessToken} on accessToken and ${refreshToken} on refreshToken` })
 
       try {
         const requestResponse = await Request.TokenUpgrade(accessToken, refreshToken)
         if (requestResponse.isError || requestResponse.data.statusCode !== 200) {
-          response.isError = true
-          response.reason = `Terjadi kesalahan saat memperbaharui token, ${requestResponse.reason}`
-          state.commit('setNotification', response.reason)
-          return response
+          Vue.$cookies.remove('access-token')
+          Vue.$cookies.remove('refresh-token')
+          state.commit('setNotification', requestResponse.reason)
+          return responseStatus({ data: null, isError: true, reason: `Terjadi kesalahan saat memperbaharui token, ${requestResponse.reason}` })
         }
 
         const responseData = requestResponse.data.data
@@ -201,18 +185,15 @@ export default new Vuex.Store({
         const newRefreshToken = responseData.refresh_token
         Vue.$cookies.set('access-token', newAccessToken)
         Vue.$cookies.set('refresh-token', newRefreshToken)
-        return response
+        return responseStatus({ data: null, isError: false, reason: null })
       } catch (exception) {
-        response.isError = true
-        response.reason = exception.message
         state.commit('setNotification', `Terjadi kesalahan saat memperbaharui token, ${exception.message}`)
-        return response
+        return responseStatus({ data: null, isError: true, reason: exception.message })
       }
 
     },
     getStudentData: async (state) => {
-      const isLoggedIn = await state.dispatch('isLoggedIn')
-      if (!isLoggedIn) return
+      await state.dispatch('isLoggedIn')
 
       const accessToken = Vue.$cookies.get('access-token')
       try {
@@ -246,8 +227,6 @@ export default new Vuex.Store({
       }
     },
     updateStudentData: async (state) => {
-      const response = { ...responseStatus }
-
       await state.dispatch('isLoggedIn')
       const accessToken = Vue.$cookies.get('access-token')
       const studentData = state.getters.getSelectedStudent
@@ -268,37 +247,25 @@ export default new Vuex.Store({
         if (result.isError) {
           console.warn(result.reason)
           state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${result.reason}`)
-          response.isError = true
-          response.reason = result.reason
-          return response
+          return responseStatus({ data: null, isError: true, reason: result.reason })
         }
 
         const statusCode = result.data.statusCode
-        if (statusCode !== 200) {
-          response.isError = true
-          response.reason = result.data.reason
-          return response
-        }
+        if (statusCode !== 200) return responseStatus({ data: result.data.data, isError: true, reason: result.data.reason })
 
         await state.dispatch('getStudentData')
-        return response
+        return responseStatus({ data: null, isError: false, reason: false })
       } catch (exception) {
         console.warn(exception.message)
         state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${exception.message}`)
-        response.isError = true
-        response.reason = exception.message
-        return response
+        return responseStatus({ data: null, isError: true, reason: exception.message })
       }
 
     },
     storeStudentData: async (state, payload) => {
-      const response = { ...responseStatus }
-
       if (typeof payload !== 'object') {
         console.warn(`[ERR] Payload must be an object, ${typeof payload} given`)
-        response.isError = true
-        response.reason = 'INVALID_PAYLOAD'
-        return response
+        return responseStatus({ data: null, isError: true, reason: 'INVALID_PAYLOAD' })
       }
 
       await state.dispatch('isLoggedIn')
@@ -320,32 +287,22 @@ export default new Vuex.Store({
         if (result.isError) {
           console.warn(result.reason)
           state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${result.reason}`)
-          response.isError = true
-          response.reason = result.reason
-          return response
+          return responseStatus({ data: null, isError: true, reason: result.reason })
         }
 
         const statusCode = result.data.statusCode
-        if (statusCode !== 200) {
-          response.isError = true
-          response.reason = result.data.reason
-          return response
-        }
+        if (statusCode !== 200) return responseStatus({ data: null, isError: true, reason: result.data.reason })
 
         await state.dispatch('getStudentData')
-        return response
+        return responseStatus({ data: null, isError: false, reason: null })
       } catch (exception) {
         console.warn(exception.message)
         state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${exception.message}`)
-        response.isError = true
-        response.reason = exception.message
-        return response
+        return responseStatus({ data: null, isError: true, reason: exception.message })
       }
 
     },
     deleteStudentData: async (state) => {
-      const response = { ...responseStatus }
-
       await state.dispatch('isLoggedIn')
       const accessToken = Vue.$cookies.get('access-token')
       const studentData = state.getters.getSelectedStudent
@@ -354,38 +311,28 @@ export default new Vuex.Store({
         'student-id': studentId
       }
 
-      try{
+      try {
         const result = await Request.DeleteStudent(accessToken, student)
         if (result.isError) {
           console.warn(result.reason)
-          state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${result.reason}`)
-          response.isError = true
-          response.reason = result.reason
-          return response
+          state.commit('setNotification', `Terjadi kesalahan saat menghapus data siswa, ${result.reason}`)
+          return responseStatus({ data: null, isError: true, reason: result.reason })
         }
 
         const statusCode = result.data.statusCode
-        if (statusCode !== 200) {
-          response.isError = true
-          response.reason = result.data.reason
-          return response
-        }
+        if (statusCode !== 200) return responseStatus({ data: null, isError: true, reason: result.data.reason })
 
         await state.dispatch('getStudentData')
         state.commit('setNotification', `Data siswa dengan nama ${fullname} berhasil dihapus`)
-        return response
-      }catch(exception){
+        return responseStatus({ data: null, isError: false, reason: null })
+      } catch (exception) {
         console.warn(exception.message)
-        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${exception.message}`)
-        response.isError = true
-        response.reason = exception.message
-        return response
+        state.commit('setNotification', `Terjadi kesalahan saat menghapus data siswa, ${exception.message}`)
+        return responseStatus({ data: null, isError: true, reason: exception.message })
       }
     },
     getParentData: async (state) => {
-      const isLoggedIn = await state.dispatch('isLoggedIn')
-      if (!isLoggedIn) return
-
+      await state.dispatch('isLoggedIn')
       const accessToken = Vue.$cookies.get('access-token')
       try {
         const responseStatus = await Request.GetParents(accessToken)
@@ -403,8 +350,61 @@ export default new Vuex.Store({
         state.commit('setNotification', `Terjadi kesalahan saat merequest data orang tua, ${exception.message}`)
 
       }
-    }
+    },
+    updateParentData: async (state) => {
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      const parentData = state.getters.getSelectedParent
+      let { id, fullname, nik, email, phone_number } = parentData
+      let parent = {
+        'parent-id': id,
+        nik: nik,
+        fullname: fullname,
+        email: email,
+        'phone-number': phone_number
+      }
 
+      try {
+        const result = await Request.UpdateParent(accessToken, parent)
+        if (result.isError) return responseStatus({ data: null, isError: true, reason: result.reason })
+        if (result.data.statusCode !== 200) return responseStatus({ data: result.data.data, isError: true, reason: result.data.reason })
+        await state.dispatch('getParentData')
+        return responseStatus({ data: result.data.data, isError: false, reason: null })
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data orang tua, ${exception.message}`)
+      }
+    },
+
+    deleteParentData: async (state) => {
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      const parentData = state.getters.getSelectedParent
+      let { id, fullname } = parentData
+      let parent = {
+        'parent-id': id
+      }
+
+      try {
+        const result = await Request.DeleteParent(accessToken, parent)
+        if (result.isError) {
+          console.warn(result.reason)
+          state.commit('setNotification', `Terjadi kesalahan saat menghapus data orang tua, ${result.reason}`)
+          return responseStatus({ data: null, isError: true, reason: result.reason })
+        }
+
+        const statusCode = result.data.statusCode
+        if (statusCode !== 200) return responseStatus({ data: null, isError: true, reason: result.data.reason })
+
+        await state.dispatch('getParentData')
+        state.commit('setNotification', `Data orang tua dengan nama ${fullname} berhasil dihapus`)
+        return responseStatus({ data: null, isError: false, reason: null })
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat menghapus data orang tua, ${exception.message}`)
+        return responseStatus({ data: null, isError: true, reason: exception.message })
+      }
+    },
   },
   modules: {
   },

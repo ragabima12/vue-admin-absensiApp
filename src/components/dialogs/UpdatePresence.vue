@@ -19,7 +19,6 @@
             <v-row>
               <v-col cols="12">
                 <v-select
-                  rounded
                   solo
                   :items="items"
                   label="Status Kehadiran"
@@ -28,7 +27,7 @@
             </v-row>
             <v-row>
               <v-col cols="12" class="mb-2">
-                <v-btn width="100%" large rounded color="primary">Simpan</v-btn>
+                <v-btn width="100%" large color="primary">Simpan</v-btn>
               </v-col>
             </v-row>
           </v-container>

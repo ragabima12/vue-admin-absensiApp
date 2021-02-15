@@ -44,7 +44,6 @@
                   </h4>
                   <v-text-field
                     v-model="getSelectedStudent.fullname"
-                    rounded
                     solo
                     label="Masukan Nama Lengkap"
                     :disabled="isLoading"
@@ -54,7 +53,6 @@
                   <h4 class="app-heading-thin app-text-subheading">NISN</h4>
                   <v-text-field
                     v-model="getSelectedStudent.nisn"
-                    rounded
                     solo
                     label="Masukan NISN"
                     :disabled="isLoading"
@@ -66,7 +64,6 @@
                   <h4 class="app-heading-thin app-text-subheading">ID Card</h4>
                   <v-text-field
                     v-model="getSelectedStudent.card_id"
-                    rounded
                     solo
                     label="Masukan Nama Lengkap"
                     :disabled="isLoading"
@@ -77,7 +74,6 @@
                 <v-col cols="5">
                   <h4 class="app-heading-thin app-text-subheading">Jurusan</h4>
                   <v-select
-                    rounded
                     solo
                     :items="getMajors"
                     v-model="getSelectedStudent.major"
@@ -88,7 +84,6 @@
                 <v-col cols="5">
                   <h4 class="app-heading-thin app-text-subheading">Kelas</h4>
                   <v-select
-                    rounded
                     solo
                     :items="getGrades"
                     v-model="getSelectedStudent.grade"
@@ -107,7 +102,6 @@
                     :items="getParents"
                     :search-input.sync="search"
                     solo
-                    rounded
                     color="blue-grey lighten-2"
                     label="Nama Orangtua"
                     clearable
@@ -136,8 +130,21 @@
           </v-card-text>
           <v-divider></v-divider>
           <v-card-actions>
+            <v-btn
+              @click="deleteStudent"
+              :loading="isDeleteLoading"
+              text
+              color="error"
+            >
+              <h4 class="app-heading-thin app-text-error">Hapus</h4>
+            </v-btn>
             <v-spacer></v-spacer>
-            <v-btn text @click="updateStudent" :loading="isLoading">
+            <v-btn
+              :disabled="isDeleteLoading"
+              text
+              @click="updateStudent"
+              :loading="isLoading"
+            >
               <h4 class="app-heading-thin">Simpan</h4>
             </v-btn>
           </v-card-actions>
@@ -155,6 +162,7 @@ export default {
       search: "",
       errors: [],
       isLoading: false,
+      isDeleteLoading: false,
       isSuccess: false,
     };
   },
@@ -195,6 +203,21 @@ export default {
 
       this.isLoading = false;
       this.isSuccess = true;
+    },
+    async deleteStudent() {
+      this.isDeleteLoading = true;
+      const result = await this.$store.dispatch("deleteStudentData");
+
+      if (result.isError) {
+        this.errors.push(
+          `Terjadi kesalahan saat menghapus data siswa, ${result.reason}`
+        );
+        this.isDeleteLoading = false;
+        return false;
+      }
+
+      this.isDeleteLoading = false;
+      this.$emit("closed", true);
     },
   },
   computed: {

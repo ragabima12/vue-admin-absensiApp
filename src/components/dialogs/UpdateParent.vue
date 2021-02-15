@@ -23,8 +23,8 @@
                 <v-col class="pb-0 pt-0" cols="12">
                   <h4>Nama Lengkap</h4>
                   <v-text-field
+                    v-model="getSelectedParent.fullname"
                     solo
-                    rounded
                     label="Masukan Nama Orangtua"
                   ></v-text-field>
                 </v-col>
@@ -32,13 +32,20 @@
               <v-row class="my-auto">
                 <v-col class="pt-0 pb-0" cols="12">
                   <h4>NIK</h4>
-                  <v-text-field solo rounded label="Masukan NIK"></v-text-field>
+                  <v-text-field
+                    v-model="getSelectedParent.nik"
+                    solo
+                    label="Masukan NIK"
+                  ></v-text-field>
                 </v-col>
               </v-row>
             </v-container>
           </v-card-text>
           <v-divider></v-divider>
           <v-card-actions>
+            <v-btn text color="error">
+              <h4 class="app-heading-thin app-text-error">Hapus</h4>
+            </v-btn>
             <v-spacer></v-spacer>
             <v-btn text>
               <h4 class="app-heading-thin">Simpan</h4>
@@ -51,12 +58,18 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   props: ["isShowedDialog"],
   methods: {
     isClosedDialog() {
       this.$emit("closed", true);
     },
+  },
+
+  computed: {
+    ...mapGetters(["getSelectedParent"]),
   },
 };
 </script>

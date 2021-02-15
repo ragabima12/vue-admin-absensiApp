@@ -80,6 +80,13 @@ export default new Vuex.Store({
       }
       state.selectedStudent = { ...payload }
     },
+    setSelectedParent: (state, payload) => {
+      if (typeof payload !== 'object') {
+        console.warn(`[WARN] Payload is not an object, ${typeof payload} given`)
+        return
+      }
+      state.selectedParent = { ...payload }
+    },
     setNotification: (state, payload) => {
       if (typeof payload === 'string') state.notification = payload
     }
@@ -336,6 +343,45 @@ export default new Vuex.Store({
       }
 
     },
+    deleteStudentData: async (state) => {
+      const response = { ...responseStatus }
+
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      const studentData = state.getters.getSelectedStudent
+      let { _id: studentId, fullname } = studentData
+      let student = {
+        'student-id': studentId
+      }
+
+      try{
+        const result = await Request.DeleteStudent(accessToken, student)
+        if (result.isError) {
+          console.warn(result.reason)
+          state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${result.reason}`)
+          response.isError = true
+          response.reason = result.reason
+          return response
+        }
+
+        const statusCode = result.data.statusCode
+        if (statusCode !== 200) {
+          response.isError = true
+          response.reason = result.data.reason
+          return response
+        }
+
+        await state.dispatch('getStudentData')
+        state.commit('setNotification', `Data siswa dengan nama ${fullname} berhasil dihapus`)
+        return response
+      }catch(exception){
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${exception.message}`)
+        response.isError = true
+        response.reason = exception.message
+        return response
+      }
+    },
     getParentData: async (state) => {
       const isLoggedIn = await state.dispatch('isLoggedIn')
       if (!isLoggedIn) return
@@ -377,6 +423,9 @@ export default new Vuex.Store({
     },
     getSelectedStudent: state => {
       return state.selectedStudent
+    },
+    getSelectedParent: state => {
+      return state.selectedParent
     },
     getParents: state => {
       return state.parentData

@@ -30,7 +30,6 @@
                     dark
                     color="#15D46D"
                     large
-                    rounded
                     ><v-icon left>mdi-download</v-icon>
                     <h4 class="app-text-white app-heading-thin">
                       Unduh Template
@@ -46,7 +45,6 @@
                     show-size
                     placeholder="Upload Excel"
                     solo
-                    rounded
                     truncate-length="12"
                     v-model="fileInput"
                   ></v-file-input
@@ -252,7 +250,6 @@ export default {
       // Tampilkan pesan selesai
       this.infoBar.isShowed = true;
       this.infoBar.text = "Selesai Upload";
-      this.fileInput = [];
       this.isUploading = false;
     },
   },

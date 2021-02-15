@@ -7,23 +7,13 @@
     </v-row>
     <v-row>
       <v-col cols="3" class="mt-3 ml-2 mb-4 pr-0">
-        <v-btn
-          dark
-          large
-          rounded
-          color="#15D46D"
-          @click="showStoreStudentDialog"
+        <v-btn dark large color="#15D46D" @click="showStoreStudentDialog"
           ><v-icon left>mdi-plus</v-icon>
           <h4 class="app-text-white app-heading-thin">Tambah Siswa</h4>
         </v-btn>
       </v-col>
       <v-col cols="4" class="mt-3 ml-7 pl-0 mb-4 pr-0">
-        <v-btn
-          @click="showStudentExcelUploadDialog"
-          dark
-          large
-          rounded
-          color="#15D46D"
+        <v-btn @click="showStudentExcelUploadDialog" dark large color="#15D46D"
           ><v-icon left>mdi-microsoft-excel</v-icon>
           <h4 class="app-text-white app-heading-thin">Upload Excel</h4>
         </v-btn>
@@ -45,7 +35,6 @@
           height="48px"
           solo
           placeholder="Cari nama siswa"
-          rounded
           prepend-inner-icon="mdi-magnify"
           clearable
         ></v-text-field>
@@ -64,7 +53,6 @@
         <v-select
           v-model="filterByMajor"
           :items="getMajors"
-          rounded
           label="Jurusan"
           solo
           @change="tableOptions.page = 1"
@@ -74,7 +62,6 @@
         <v-select
           v-model="filterByGrade"
           :items="getGrades"
-          rounded
           label="Kelas"
           solo
           @change="tableOptions.page = 1"
@@ -98,11 +85,16 @@
           :items="StudentData"
           :items-per-page="5"
           class="elevation-1"
-          @click:row="selectStudent"
           :options.sync="tableOptions"
           :loading="isLoadingTable"
           loading-text="Mohon tunggu ..."
-        ></v-data-table>
+        >
+          <template v-slot:[`item.action`]="{ item }">
+            <v-btn color="primary" dense @click="selectStudent(item)"
+              >Edit</v-btn
+            >
+          </template>
+        </v-data-table>
       </v-col>
     </v-row>
     <UpdateStudent
@@ -151,6 +143,7 @@ export default {
         { text: "Nama Lengkap", value: "fullname" },
         { text: "Jurusan", value: "major" },
         { text: "Kelas", value: "grade" },
+        { text: "Aksi", value: "action" },
       ],
     };
   },

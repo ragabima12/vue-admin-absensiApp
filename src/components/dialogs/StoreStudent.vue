@@ -10,7 +10,7 @@
       >
         <v-card>
           <v-card-title>
-            <h4 class="app-heading-thin">Edit Data Siswa</h4>
+            <h4 class="app-heading-thin">Tambah Data Siswa</h4>
             <v-spacer></v-spacer>
             <v-btn icon @click="isClosedDialog">
               <v-icon color="red">mdi-close</v-icon>
@@ -22,7 +22,7 @@
               <v-row>
                 <v-col cols="12" v-if="isSuccess">
                   <v-alert dense text type="success">
-                    Data siswa berhasil diperbaharui
+                    Data siswa berhasil dimasukan!
                   </v-alert>
                 </v-col>
                 <v-col cols="12" v-if="errors">
@@ -43,7 +43,7 @@
                     Nama Lengkap
                   </h4>
                   <v-text-field
-                    v-model="getSelectedStudent.fullname"
+                    v-model="student.fullname"
                     rounded
                     solo
                     label="Masukan Nama Lengkap"
@@ -53,7 +53,7 @@
                 <v-col class="pb-0" cols="6">
                   <h4 class="app-heading-thin app-text-subheading">NISN</h4>
                   <v-text-field
-                    v-model="getSelectedStudent.nisn"
+                    v-model="student.nisn"
                     rounded
                     solo
                     label="Masukan NISN"
@@ -65,7 +65,7 @@
                 <v-col class="pb-0" cols="12">
                   <h4 class="app-heading-thin app-text-subheading">ID Card</h4>
                   <v-text-field
-                    v-model="getSelectedStudent.card_id"
+                    v-model="student.card_id"
                     rounded
                     solo
                     label="Masukan Nama Lengkap"
@@ -80,7 +80,7 @@
                     rounded
                     solo
                     :items="getMajors"
-                    v-model="getSelectedStudent.major"
+                    v-model="student.major"
                     label="Jurusan"
                     :disabled="isLoading"
                   ></v-select>
@@ -91,7 +91,7 @@
                     rounded
                     solo
                     :items="getGrades"
-                    v-model="getSelectedStudent.grade"
+                    v-model="student.grade"
                     label="Kelas"
                     :disabled="isLoading"
                   ></v-select>
@@ -103,7 +103,7 @@
                     Nama Orangtua
                   </h4>
                   <v-autocomplete
-                    v-model="getSelectedStudent.parent"
+                    v-model="student.parent"
                     :items="getParents"
                     :search-input.sync="search"
                     solo
@@ -137,7 +137,7 @@
           <v-divider></v-divider>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn text @click="updateStudent" :loading="isLoading">
+            <v-btn text @click="storeStudent" :loading="isLoading">
               <h4 class="app-heading-thin">Simpan</h4>
             </v-btn>
           </v-card-actions>
@@ -156,6 +156,14 @@ export default {
       errors: [],
       isLoading: false,
       isSuccess: false,
+      student: {
+        nisn: null,
+        fullname: null,
+        card_id: null,
+        major: null,
+        grade: null,
+        parent: null,
+      },
     };
   },
 
@@ -170,27 +178,33 @@ export default {
     resetErrors() {
       this.errors = [];
     },
-    async updateStudent() {
+    async storeStudent() {
       this.isLoading = true;
       this.isSuccess = false;
-
       this.resetErrors();
-      let studentData = this.$store.getters.getSelectedStudent;
-      let { fullname, nisn, card_id } = studentData;
-      if (!fullname) this.errors.push("Nama siswa tidak boleh kosong");
-      if (!nisn) this.errors.push("NISN siswa tidak boleh kosong");
 
-      if (this.errors.length > 0) {
+      const student = this.student;
+      if (!student.fullname) this.errors.push("Nama siswa tidak boleh kosong");
+      if (!student.nisn) this.errors.push("NISN siswa tidak boleh kosong");
+      if (isNaN(student.nisn))
+        this.errors.push("NISN siswa harus berupa angka");
+      if (!student.major) this.errors.push("Jurusan tidak boleh kosong");
+      if (!student.grade) this.errors.push("Kelas tidak boleh kosong");
+
+      const isErrors = this.errors.length > 0;
+      if (isErrors) {
         this.isLoading = false;
-        return;
+        return false;
       }
-      const result = await this.$store.dispatch("updateStudentData");
+
+      const result = await this.$store.dispatch("storeStudentData", student);
+      console.log(result);
       if (result.isError) {
         this.errors.push(
           `Terjadi kesalahan saat memperbaharui data siswa, ${result.reason}`
         );
         this.isLoading = false;
-        return;
+        return false;
       }
 
       this.isLoading = false;
@@ -198,7 +212,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["getMajors", "getGrades", "getSelectedStudent"]),
+    ...mapGetters(["getMajors", "getGrades"]),
     getParents() {
       let parents = this.$store.getters.getParents;
       if (this.search) {

@@ -7,7 +7,12 @@
     </v-row>
     <v-row>
       <v-col cols="3" class="mt-3 ml-2 mb-4 pr-0">
-        <v-btn dark large rounded color="#15D46D"
+        <v-btn
+          dark
+          large
+          rounded
+          color="#15D46D"
+          @click="showStoreStudentDialog"
           ><v-icon left>mdi-plus</v-icon>
           <h4 class="app-text-white app-heading-thin">Tambah Siswa</h4>
         </v-btn>
@@ -100,20 +105,26 @@
         ></v-data-table>
       </v-col>
     </v-row>
-    <UpdateStudentDialog
-      @closed="showUpdateStudentDialog = false"
-      :isShowedDialog="showUpdateStudentDialog"
+    <UpdateStudent
+      @closed="showUpdateStudent = false"
+      :isShowedDialog="showUpdateStudent"
+    />
+    <StoreStudent
+      @closed="showStoreStudent = false"
+      :isShowedDialog="showStoreStudent"
     />
     <StoreExcelData
-      @closed="showExcelUploadDialog = false"
-      :isShowedDialog="showExcelUploadDialog"
+      @closed="showExcelUpload = false"
+      :isShowedDialog="showExcelUpload"
     />
   </div>
 </template>
 
 <script>
 import StoreExcelData from "@/components/dialogs/StoreStudentsExcel";
-import UpdateStudentDialog from "@/components/dialogs/UpdateStudent";
+import UpdateStudent from "@/components/dialogs/UpdateStudent";
+import StoreStudent from "@/components/dialogs/StoreStudent";
+
 import { mapGetters } from "vuex";
 
 export default {
@@ -122,8 +133,9 @@ export default {
       filterByMajor: "",
       filterByGrade: "",
       searchKeywords: "",
-      showUpdateStudentDialog: false,
-      showExcelUploadDialog: false,
+      showUpdateStudent: false,
+      showExcelUpload: false,
+      showStoreStudent: false,
       tableOptions: {
         page: 1,
       },
@@ -145,19 +157,24 @@ export default {
   methods: {
     selectStudent(studentData) {
       this.$store.commit("setSelectedStudent", studentData);
-      this.showUpdateStudentDialog = true;
+      this.showUpdateStudent = true;
     },
     clearFilter() {
       this.filterByMajor = "";
       this.filterByGrade = "";
     },
     showStudentExcelUploadDialog() {
-      this.showExcelUploadDialog = true;
+      this.showExcelUpload = true;
+    },
+
+    showStoreStudentDialog() {
+      this.showStoreStudent = true;
     },
   },
   components: {
-    UpdateStudentDialog,
+    UpdateStudent,
     StoreExcelData,
+    StoreStudent,
   },
   async mounted() {
     const emptyStudents = !this.$store.getters.getStudents.length;
@@ -210,7 +227,9 @@ export default {
             (parent) => parent._id === student.parent_id
           );
           parent = parent[0];
-          return { parent: parent, ...student };
+          let result = { parent: parent, ...student };
+          delete result.parent_id;
+          return result;
         });
 
         return studentData;

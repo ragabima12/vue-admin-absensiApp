@@ -238,6 +238,104 @@ export default new Vuex.Store({
         state.commit('setNotification', `Terjadi kesalahan saat merequest data siswa, ${exception.message}`)
       }
     },
+    updateStudentData: async (state) => {
+      const response = { ...responseStatus }
+
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      const studentData = state.getters.getSelectedStudent
+      let { _id: studentId, nisn, fullname, grade, major, parent, card_id } = studentData
+      let parentId = null
+      if (parent) parentId = parent._id
+      let student = new Object()
+      student['student-id'] = studentId
+      if (parentId) student['parent-id'] = parentId
+      student['card-id'] = card_id || ''
+      student.nisn = nisn
+      student.fullname = fullname
+      student.grade = grade
+      student.major = major
+
+      try {
+        const result = await Request.UpdateStudent(accessToken, student)
+        if (result.isError) {
+          console.warn(result.reason)
+          state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${result.reason}`)
+          response.isError = true
+          response.reason = result.reason
+          return response
+        }
+
+        const statusCode = result.data.statusCode
+        if (statusCode !== 200) {
+          response.isError = true
+          response.reason = result.data.reason
+          return response
+        }
+
+        await state.dispatch('getStudentData')
+        return response
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${exception.message}`)
+        response.isError = true
+        response.reason = exception.message
+        return response
+      }
+
+    },
+    storeStudentData: async (state, payload) => {
+      const response = { ...responseStatus }
+
+      if (typeof payload !== 'object') {
+        console.warn(`[ERR] Payload must be an object, ${typeof payload} given`)
+        response.isError = true
+        response.reason = 'INVALID_PAYLOAD'
+        return response
+      }
+
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      const studentData = payload
+      let { nisn, fullname, grade, major, parent, card_id } = studentData
+      let parentId = null
+      if (parent) parentId = parent._id
+      let student = new Object()
+      if (parentId) student['parent-id'] = parentId
+      student['card-id'] = card_id || ''
+      student.nisn = nisn
+      student.fullname = fullname
+      student.grade = grade
+      student.major = major
+
+      try {
+        const result = await Request.StoreStudent(accessToken, student)
+        if (result.isError) {
+          console.warn(result.reason)
+          state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${result.reason}`)
+          response.isError = true
+          response.reason = result.reason
+          return response
+        }
+
+        const statusCode = result.data.statusCode
+        if (statusCode !== 200) {
+          response.isError = true
+          response.reason = result.data.reason
+          return response
+        }
+
+        await state.dispatch('getStudentData')
+        return response
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${exception.message}`)
+        response.isError = true
+        response.reason = exception.message
+        return response
+      }
+
+    },
     getParentData: async (state) => {
       const isLoggedIn = await state.dispatch('isLoggedIn')
       if (!isLoggedIn) return

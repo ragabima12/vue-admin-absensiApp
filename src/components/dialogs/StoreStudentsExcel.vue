@@ -48,7 +48,6 @@
                     solo
                     rounded
                     truncate-length="12"
-                    ref="uploadExcel"
                     v-model="fileInput"
                   ></v-file-input
                 ></v-col>
@@ -136,12 +135,7 @@
           <v-divider></v-divider>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              :loading="isUploading"
-              ref="button"
-              @click="sendFileExcel"
-              text
-            >
+            <v-btn :loading="isUploading" @click="sendFileExcel" text>
               <h4 class="app-heading-thin">Simpan</h4>
             </v-btn>
           </v-card-actions>
@@ -169,7 +163,7 @@ export default {
         parentErrors: [],
         studentErrors: [],
       },
-      fileInput: "",
+      fileInput: [],
       isUploading: false,
       infoBar: {
         isShowed: false,
@@ -185,6 +179,26 @@ export default {
     },
 
     async sendFileExcel() {
+      this.responseErrors.parentErrors = [];
+      this.responseErrors.studentErrors = [];
+
+      const isEmptyFile = !this.fileInput;
+      if (isEmptyFile) {
+        this.infoBar.isShowed = true;
+        this.infoBar.text = "File tidak boleh kosong";
+        return;
+      }
+
+      const invalidFileExtension =
+        this.fileInput.type !==
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+      if (invalidFileExtension) {
+        this.infoBar.isShowed = true;
+        this.infoBar.text = "File tidak sesuai";
+        return;
+      }
+
       const readFile = (fileBlob) =>
         new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -202,15 +216,28 @@ export default {
       const accessToken = Vue.$cookies.get("access-token");
 
       this.isUploading = true;
-
       // Tampilkan pesan sedang upload
       this.infoBar.isShowed = true;
       this.infoBar.text = "Sedang Upload";
-
+      await this.$store.dispatch("isLoggedIn");
       const UploadResult = await Request.UploadExcelFile(
         accessToken,
         base64ExcelFile
       );
+
+      if (UploadResult.isError) {
+        this.infoBar.isShowed = true;
+        this.infoBar.text = `Terjadi kesalahan saat mengupload file excel, ${UploadResult.reason}`;
+        this.isUploading = false;
+        return false;
+      }
+
+      if (UploadResult.data.statusCode !== 200) {
+        this.infoBar.isShowed = true;
+        this.infoBar.text = UploadResult.data.reason;
+        this.isUploading = false;
+        return false;
+      }
 
       let errorParents = UploadResult.data.data.parentStoreErrors;
       let errorStudents = UploadResult.data.data.studentStoreErrors;
@@ -218,10 +245,14 @@ export default {
       this.responseErrors.parentErrors = errorParents;
       this.responseErrors.studentErrors = errorStudents;
 
+      // Updating Student and Parent Data
+      await this.$store.dispatch("getStudentData");
+      await this.$store.dispatch("getParentData");
+
       // Tampilkan pesan selesai
       this.infoBar.isShowed = true;
       this.infoBar.text = "Selesai Upload";
-      this.fileInput = "";
+      this.fileInput = [];
       this.isUploading = false;
     },
   },

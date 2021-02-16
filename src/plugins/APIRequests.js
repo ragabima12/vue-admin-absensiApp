@@ -84,6 +84,33 @@ const TokenUpgrade = async (accessToken, refreshToken) => {
     return response
 }
 
+const UploadExcelFile = async (accessToken, base64) => {
+    let response = { ...responseStatus }
+    if (typeof accessToken !== 'string') {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
+    const method = 'POST'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    const data = {
+        'excel-file': base64
+    }
+
+    const requestResponse = await Request(url, method, data, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
 const GetStudents = async (accessToken) => {
     let response = { ...responseStatus }
     if (typeof accessToken !== 'string') {
@@ -170,22 +197,26 @@ const StoreStudent = async (accessToken, studentData) => {
     return response
 }
 
-const UploadExcelFile = async (accessToken, base64) => {
+const DeleteStudent = async (accessToken, studentData) => {
     let response = { ...responseStatus }
     if (typeof accessToken !== 'string') {
         response.isError = true
         response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
         return response
     }
+
+    if (typeof studentData !== 'object') {
+        response.isError = true
+        response.reason = `Student data must be an object, ${typeof studentData} given`
+        return response
+    }
+
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
-    const method = 'POST'
+    const method = 'DELETE'
     const headers = {
         'Access-Token': accessToken,
     }
-    const data = {
-        'excel-file': base64
-    }
-
+    const data = studentData
     const requestResponse = await Request(url, method, data, headers)
     if (requestResponse.isError) {
         response.isError = true
@@ -221,7 +252,7 @@ const GetParents = async (accessToken) => {
     return response
 }
 
-const DeleteStudent = async (accessToken, studentData) => {
+const UpdateParent = async (accessToken, parentData) => {
     let response = { ...responseStatus }
     if (typeof accessToken !== 'string') {
         response.isError = true
@@ -229,18 +260,18 @@ const DeleteStudent = async (accessToken, studentData) => {
         return response
     }
 
-    if (typeof studentData !== 'object') {
+    if (typeof parentData !== 'object') {
         response.isError = true
-        response.reason = `Student data must be an object, ${typeof studentData} given`
+        response.reason = `Student data must be an object, ${typeof parentData} given`
         return response
     }
 
-    const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
-    const method = 'DELETE'
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
+    const method = 'PATCH'
     const headers = {
         'Access-Token': accessToken,
     }
-    const data = studentData
+    const data = parentData
     const requestResponse = await Request(url, method, data, headers)
     if (requestResponse.isError) {
         response.isError = true
@@ -253,5 +284,46 @@ const DeleteStudent = async (accessToken, studentData) => {
 }
 
 
+const DeleteParent = async (accessToken, parentData) => {
+    let response = { ...responseStatus }
+    if (typeof accessToken !== 'string') {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
 
-export default { Login, TokenUpgrade, GetStudents, GetParents, UploadExcelFile, UpdateStudent, StoreStudent, DeleteStudent }
+    if (typeof parentData !== 'object') {
+        response.isError = true
+        response.reason = `Student data must be an object, ${typeof parentData} given`
+        return response
+    }
+
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
+    const method = 'DELETE'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    const data = parentData
+    const requestResponse = await Request(url, method, data, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
+export default {
+    Login,
+    TokenUpgrade,
+    UploadExcelFile,
+    GetStudents,
+    UpdateStudent,
+    StoreStudent,
+    DeleteStudent,
+    GetParents,
+    UpdateParent,
+    DeleteParent
+}

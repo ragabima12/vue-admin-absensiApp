@@ -283,6 +283,37 @@ const UpdateParent = async (accessToken, parentData) => {
     return response
 }
 
+const StoreParent = async (accessToken, parentData) => {
+    let response = { ...responseStatus }
+    if (typeof accessToken !== 'string') {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+
+    if (typeof parentData !== 'object') {
+        response.isError = true
+        response.reason = `Student data must be an object, ${typeof parentData} given`
+        return response
+    }
+
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
+    const method = 'POST'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    const data = parentData
+    const requestResponse = await Request(url, method, data, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
 
 const DeleteParent = async (accessToken, parentData) => {
     let response = { ...responseStatus }
@@ -325,5 +356,6 @@ export default {
     DeleteStudent,
     GetParents,
     UpdateParent,
+    StoreParent,
     DeleteParent
 }

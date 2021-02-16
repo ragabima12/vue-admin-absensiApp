@@ -7,7 +7,7 @@
     </v-row>
     <v-row>
       <v-col cols="4" class="mt-3 ml-2 mb-4 pr-0">
-        <v-btn dark large color="#15D46D"
+        <v-btn dark large color="#15D46D" @click="showStoreParentDialog"
           ><v-icon left>mdi-plus</v-icon>
           <h4 class="app-text-white app-heading-thin">Tambah Orang Tua</h4>
         </v-btn>
@@ -59,21 +59,29 @@
       </v-col>
     </v-row>
     <UpdateParentDialog
-      @closed="ShowDialogParent = false"
-      :isShowedDialog="ShowDialogParent"
+      @closed="ShowUpdateDialog = false"
+      :isShowedDialog="ShowUpdateDialog"
+    />
+
+    <StoreParentDialog
+      @closed="ShowStoreDialog = false"
+      :isShowedDialog="ShowStoreDialog"
     />
   </div>
 </template>
 
 <script>
 import UpdateParentDialog from "@/components/dialogs/UpdateParent";
+import StoreParentDialog from "@/components/dialogs/StoreParent";
+
 import { mapGetters } from "vuex";
 
 export default {
   data() {
     return {
       search: "",
-      ShowDialogParent: false,
+      ShowUpdateDialog: false,
+      ShowStoreDialog: false,
       isLoadingTable: true,
       headers: [
         {
@@ -92,6 +100,7 @@ export default {
   },
   components: {
     UpdateParentDialog,
+    StoreParentDialog,
   },
   methods: {
     showUpdateParentDialog(parent) {
@@ -104,7 +113,10 @@ export default {
         phone_number: phone_number,
       };
       this.$store.commit("setSelectedParent", parent);
-      this.ShowDialogParent = true;
+      this.ShowUpdateDialog = true;
+    },
+    showStoreParentDialog() {
+      this.ShowStoreDialog = true;
     },
   },
   async mounted() {

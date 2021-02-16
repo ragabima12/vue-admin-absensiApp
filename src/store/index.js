@@ -376,6 +376,35 @@ export default new Vuex.Store({
       }
     },
 
+    storeParentData: async (state, payload) => {
+      if (typeof payload !== 'object') {
+        console.warn(`Payload must be an object, ${typeof payload} given`)
+        return responseStatus({ data: null, isError: true, reason: `Payload must be an object, ${typeof payload} given` })
+      }
+
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      const parentData = payload
+      let { fullname, nik, email, phone_number } = parentData
+      let parent = {
+        nik: nik,
+        fullname: fullname,
+        email: email,
+        'phone-number': phone_number
+      }
+
+      try {
+        const result = await Request.StoreParent(accessToken, parent)
+        if (result.isError) return responseStatus({ data: null, isError: true, reason: result.reason })
+        if (result.data.statusCode !== 200) return responseStatus({ data: result.data.data, isError: true, reason: result.data.reason })
+        await state.dispatch('getParentData')
+        return responseStatus({ data: result.data.data, isError: false, reason: null })
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat menambahkan data orang tua, ${exception.message}`)
+      }
+    },
+
     deleteParentData: async (state) => {
       await state.dispatch('isLoggedIn')
       const accessToken = Vue.$cookies.get('access-token')

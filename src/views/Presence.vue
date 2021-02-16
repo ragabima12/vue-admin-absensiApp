@@ -1,19 +1,19 @@
 <template>
   <div>
     <v-row>
+      <v-col class="ml-3" cols="12">
+        <h2 class="app-heading-thin">Data Kehadiran</h2>
+      </v-col>
+    </v-row>
+
+    <v-row>
       <v-col class="pa-0 pt-4 px-6" cols="7">
         <v-text-field
           height="48px"
           solo
           placeholder="Cari nama siswa"
-          rounded
           prepend-inner-icon="mdi-magnify"
         ></v-text-field>
-      </v-col>
-      <v-col class="pa-0 pt-4 px-4" cols="3">
-        <v-btn elevation="2" rounded x-large width="100%" color="primary">
-          <h5 class="app-text-white app-heading-thin">Cari Siswa</h5>
-        </v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -25,11 +25,11 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols="4" class="ml-4 pr-0 mt-3">
-        <v-select :items="jurusan" rounded label="Jurusan" solo></v-select>
+      <v-col cols="3" class="ml-4 pr-0 mt-3">
+        <v-select :items="jurusan" label="Jurusan" solo></v-select>
       </v-col>
-      <v-col cols="4" class="ml-4 pr-0 mt-3">
-        <v-select :items="kelas" rounded label="Kelas" solo></v-select>
+      <v-col cols="3" class="ml-4 pr-0 mt-3">
+        <v-select :items="kelas" label="Kelas" solo></v-select>
       </v-col>
     </v-row>
     <v-row>

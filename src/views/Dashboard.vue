@@ -43,7 +43,7 @@
       <v-btn plain color="white" @click="NavigateTo(`/dashboard/student`)"
         ><h4 class="app-text-white app-heading-thin">Data Siswa</h4></v-btn
       >
-      <v-btn plain color="white"
+      <v-btn plain color="white" @click="NavigateTo(`/dashboard/config`)"
         ><h4 class="app-text-white app-heading-thin">Konfigurasi</h4></v-btn
       >
       <v-spacer></v-spacer>
@@ -55,13 +55,15 @@
         @click="AccountDialog"
       >
         <v-avatar color="primary" size="56" class="mr-4">
-          <img
-            lazy-src="https://picsum.photos/id/11/10/6"
-            alt="John"
-            src="https://picsum.photos/id/11/500/300"
-          />
+          <span>{{
+            getUserData.fullname
+              ? getUserData.fullname.substr(0, 2).toUpperCase()
+              : ""
+          }}</span>
         </v-avatar>
-        <h4 class="app-text-white app-heading-thin">{{ getUserFullname }}</h4>
+        <h4 class="app-text-white app-heading-thin">
+          {{ getUserData.fullname }}
+        </h4>
       </v-chip>
     </v-app-bar>
     <div class="mt-12">
@@ -81,6 +83,10 @@
           </v-row>
         </v-col>
       </v-row>
+      <AccountDialog
+        @closed="isShowedAccountDialog = false"
+        :isShowedDialog="isShowedAccountDialog"
+      />
     </div>
   </div>
 </template>
@@ -89,12 +95,14 @@
 import Vue from "vue";
 import VueCookies from "vue-cookies";
 import AppSidebar from "@/components/AppSidebar";
-import { mapState } from "vuex";
+import AccountDialog from "@/components/dialogs/Account";
+import { mapState, mapGetters } from "vuex";
 
 Vue.use(VueCookies);
 
 export default {
   data: () => ({
+    isShowedAccountDialog: false,
     accountDialog: {
       isShowed: false,
       width: 200,
@@ -114,6 +122,9 @@ export default {
         },
       ],
       menuActions: {
+        accountSetting() {
+          this.isShowedAccountDialog = true;
+        },
         logout() {
           Vue.$cookies.remove("access-token");
           Vue.$cookies.remove("refresh-token");
@@ -144,11 +155,12 @@ export default {
       actions[actionName].call(this);
     },
   },
-  computed: mapState({
-    getUserFullname: (state) => state.userData.fullname,
-  }),
+  computed: {
+    ...mapGetters(["getUserData"]),
+  },
   components: {
     AppSidebar,
+    AccountDialog,
   },
   props: ["sidebarMenus"],
   watch: {

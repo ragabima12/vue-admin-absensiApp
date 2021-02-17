@@ -345,6 +345,29 @@ const DeleteParent = async (accessToken, parentData) => {
     response.data = requestResponse.data
     return response
 }
+const GetAttendance = async (accessToken) => {
+    let response = { ...responseStatus }
+    if (typeof accessToken !== 'string') {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/attendance`
+    const method = 'GET'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+
+    const requestResponse = await Request(url, method, null, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
 
 export default {
     Login,
@@ -357,5 +380,6 @@ export default {
     GetParents,
     UpdateParent,
     StoreParent,
-    DeleteParent
+    DeleteParent,
+    GetAttendance
 }

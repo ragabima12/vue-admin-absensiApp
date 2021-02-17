@@ -21,6 +21,7 @@ export default new Vuex.Store({
       majors: [],
       grades: []
     },
+    attendanceData: [],
     parentData: [],
     sidebar: {
       title: "",
@@ -91,6 +92,13 @@ export default new Vuex.Store({
     },
     setNotification: (state, payload) => {
       if (typeof payload === 'string') state.notification = payload
+    },
+    setAttendanceData: (state, payload) => {
+      if (!Array.isArray(payload)) {
+        console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
+        return
+      }
+      state.attendanceData = payload
     }
   },
   actions: {
@@ -434,6 +442,26 @@ export default new Vuex.Store({
         return responseStatus({ data: null, isError: true, reason: exception.message })
       }
     },
+    getAttendanceData: async (state) => {
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      try {
+        const responseStatus = await Request.GetAttendance(accessToken)
+        if (responseStatus.isError) {
+          state.commit('setNotification', `Terjadi kesalahan saat merequest kehadiran siswa, ${responseStatus.reason}`)
+          return
+        }
+
+        if (responseStatus.data.statusCode === 200) {
+          let attendances = responseStatus.data.data
+          state.commit('setAttendanceData', attendances)
+        }
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat merequest kehadiran siswa, ${exception.message}`)
+
+      }
+    },
   },
   modules: {
   },
@@ -461,6 +489,12 @@ export default new Vuex.Store({
     },
     getNotification: state => {
       return state.notification
+    },
+    getAttendances: state => {
+      return state.attendanceData
+    },
+    getUserData: state => {
+      return state.userData
     }
   },
 

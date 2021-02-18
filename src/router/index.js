@@ -5,6 +5,7 @@ import Presence from '@/views/Presence'
 import PresenceRecap from '@/views/PresenceRecap'
 import StudentData from '@/views/StudentData'
 import ParentData from '@/views/ParentData'
+import Config from '@/views/Config'
 
 Vue.use(VueRouter)
 
@@ -37,6 +38,11 @@ const routes = [
     path: '/dashboard/student/parent',
     name: 'Parent Data',
     component: ParentData
+  },
+  {
+    path: '/dashboard/config',
+    name: 'Manage Account',
+    component: Config
   }
 ]
 

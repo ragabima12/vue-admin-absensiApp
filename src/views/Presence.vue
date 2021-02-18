@@ -52,12 +52,12 @@
           :items-per-page="5"
           class="elevation-1"
         >
-          <template v-slot:[`item.attendance_status`]>
+          <template v-slot:[`item.attendance_status`]="{ item }">
             <v-select
               class="mt-6"
-              :items="['Sakit', 'Izin', 'Hadir', 'Belum Hadir', 'Alpha']"
               label="Status Kehadiran"
-              value="Belum Hadir"
+              :items="['Hadir', 'Tidak Hadir']"
+              :value="item.attendance_status"
               solo
               dense
             ></v-select>
@@ -116,9 +116,10 @@ export default {
     PresenceDialogue,
   },
   computed: {
-    ...mapGetters(["getGrades", "getMajors", "getStudents"]),
+    ...mapGetters(["getGrades", "getMajors", "getStudents", "getAttendances"]),
     attendances() {
       let students = this.getStudents;
+      let attendances = this.getAttendances;
       let search = this.search;
       let filter = this.filter;
 
@@ -128,6 +129,7 @@ export default {
         fullname: student.fullname.toUpperCase(),
         major: student.major,
         grade: student.grade,
+        card_id: student.card_id,
       }));
 
       if (search)
@@ -146,12 +148,32 @@ export default {
           (student) => student.grade === filter.byGrade
         );
 
+      students = students.map((student) => {
+        let attendanceData = attendances.filter(
+          (attendance) => attendance.id_card === student.card_id
+        );
+
+        let attendanceStatus = "Tidak Hadir";
+        let isPresence = attendanceData.length > 0;
+        if (isPresence) {
+          attendanceStatus = "Hadir";
+        }
+
+        return {
+          attendance: attendanceData[0] || null,
+          attendance_status: attendanceStatus,
+          ...student,
+        };
+      });
+
       return students;
     },
   },
   async mounted() {
     const emptyStudents = !this.$store.getters.getStudents.length;
     if (emptyStudents) await this.$store.dispatch("getStudentData");
+    const emptyAttendances = !this.$store.getters.getAttendances.length;
+    if (emptyAttendances) await this.$store.dispatch("getAttendanceData");
   },
 };
 </script>

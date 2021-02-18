@@ -122,6 +122,21 @@ export default {
           },
         };
       }
+      if (currentPath.toLowerCase().indexOf("/dashboard/config") > -1) {
+        this.sidebar.title = "Konfigurasi";
+        this.sidebar.menus = [
+          {
+            text: "Hak Akses",
+            icon: "mdi-list-status",
+            action: "manageAccount",
+          },
+        ];
+        this.sidebar.actions = {
+          manageAccount() {
+            return this.$router.push("/dashboard/config").catch(() => {});
+          },
+        };
+      }
       return this.sidebar;
     },
   },

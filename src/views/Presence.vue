@@ -64,7 +64,9 @@
           </template>
 
           <template v-slot:[`item.action`]>
-            <v-btn color="primary" dense>Tinjau</v-btn>
+            <v-btn color="primary" dense @click="showPresenceStatus"
+              >Tinjau</v-btn
+            >
           </template>
         </v-data-table>
       </v-col>

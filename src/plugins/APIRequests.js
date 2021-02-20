@@ -1,4 +1,5 @@
 import Axios from 'axios'
+Axios.defaults.withCredentials = true
 
 let responseStatus = {
     isError: false,
@@ -59,20 +60,11 @@ const Login = async (username, password) => {
 
 }
 
-const TokenUpgrade = async (accessToken, refreshToken) => {
+const TokenUpgrade = async () => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string' || typeof refreshToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token and Refresh token must be a string, given ${typeof accessToken} on Access Token, and ${typeof refreshToken} on Refresh Token`
-        return response
-    }
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/auth/token`
     const method = 'GET'
-    const headers = {
-        'Access-Token': accessToken,
-        'Refresh-Token': refreshToken
-    }
-
+    const headers =  {}
     const requestResponse = await Request(url, method, null, headers)
     if (requestResponse.isError) {
         response.isError = true
@@ -84,18 +76,11 @@ const TokenUpgrade = async (accessToken, refreshToken) => {
     return response
 }
 
-const UploadExcelFile = async (accessToken, base64) => {
+const UploadExcelFile = async (base64) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
     const method = 'POST'
-    const headers = {
-        'Access-Token': accessToken,
-    }
+    const headers = {}
     const data = {
         'excel-file': base64
     }
@@ -111,19 +96,11 @@ const UploadExcelFile = async (accessToken, base64) => {
     return response
 }
 
-const GetStudents = async (accessToken) => {
+const GetStudents = async () => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
     const method = 'GET'
-    const headers = {
-        'Access-Token': accessToken,
-    }
-
+    const headers = {}
     const requestResponse = await Request(url, method, null, headers)
     if (requestResponse.isError) {
         response.isError = true
@@ -135,14 +112,8 @@ const GetStudents = async (accessToken) => {
     return response
 }
 
-const UpdateStudent = async (accessToken, studentData) => {
+const UpdateStudent = async (studentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
-
     if (typeof studentData !== 'object') {
         response.isError = true
         response.reason = `Student data must be an object, ${typeof studentData} given`
@@ -151,9 +122,7 @@ const UpdateStudent = async (accessToken, studentData) => {
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
     const method = 'PATCH'
-    const headers = {
-        'Access-Token': accessToken,
-    }
+    const headers = {}
     const data = studentData
     const requestResponse = await Request(url, method, data, headers)
     if (requestResponse.isError) {
@@ -166,14 +135,8 @@ const UpdateStudent = async (accessToken, studentData) => {
     return response
 }
 
-const StoreStudent = async (accessToken, studentData) => {
+const StoreStudent = async (studentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
-
     if (typeof studentData !== 'object') {
         response.isError = true
         response.reason = `Student data must be an object, ${typeof studentData} given`
@@ -182,9 +145,7 @@ const StoreStudent = async (accessToken, studentData) => {
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
     const method = 'POST'
-    const headers = {
-        'Access-Token': accessToken,
-    }
+    const headers = {}
     const data = studentData
     const requestResponse = await Request(url, method, data, headers)
     if (requestResponse.isError) {
@@ -197,13 +158,8 @@ const StoreStudent = async (accessToken, studentData) => {
     return response
 }
 
-const DeleteStudent = async (accessToken, studentData) => {
+const DeleteStudent = async (studentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     if (typeof studentData !== 'object') {
         response.isError = true
@@ -213,9 +169,7 @@ const DeleteStudent = async (accessToken, studentData) => {
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
     const method = 'DELETE'
-    const headers = {
-        'Access-Token': accessToken,
-    }
+    const headers = {}
     const data = studentData
     const requestResponse = await Request(url, method, data, headers)
     if (requestResponse.isError) {
@@ -228,19 +182,11 @@ const DeleteStudent = async (accessToken, studentData) => {
     return response
 }
 
-const GetParents = async (accessToken) => {
+const GetParents = async () => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
     const method = 'GET'
-    const headers = {
-        'Access-Token': accessToken,
-    }
-
+    const headers = {}
     const requestResponse = await Request(url, method, null, headers)
     if (requestResponse.isError) {
         response.isError = true
@@ -252,14 +198,8 @@ const GetParents = async (accessToken) => {
     return response
 }
 
-const UpdateParent = async (accessToken, parentData) => {
+const UpdateParent = async (parentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
-
     if (typeof parentData !== 'object') {
         response.isError = true
         response.reason = `Student data must be an object, ${typeof parentData} given`
@@ -268,9 +208,7 @@ const UpdateParent = async (accessToken, parentData) => {
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
     const method = 'PATCH'
-    const headers = {
-        'Access-Token': accessToken,
-    }
+    const headers = {}
     const data = parentData
     const requestResponse = await Request(url, method, data, headers)
     if (requestResponse.isError) {
@@ -283,14 +221,8 @@ const UpdateParent = async (accessToken, parentData) => {
     return response
 }
 
-const StoreParent = async (accessToken, parentData) => {
+const StoreParent = async (parentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
-
     if (typeof parentData !== 'object') {
         response.isError = true
         response.reason = `Student data must be an object, ${typeof parentData} given`
@@ -299,9 +231,7 @@ const StoreParent = async (accessToken, parentData) => {
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
     const method = 'POST'
-    const headers = {
-        'Access-Token': accessToken,
-    }
+    const headers = {}
     const data = parentData
     const requestResponse = await Request(url, method, data, headers)
     if (requestResponse.isError) {
@@ -315,14 +245,8 @@ const StoreParent = async (accessToken, parentData) => {
 }
 
 
-const DeleteParent = async (accessToken, parentData) => {
+const DeleteParent = async (parentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
-
     if (typeof parentData !== 'object') {
         response.isError = true
         response.reason = `Student data must be an object, ${typeof parentData} given`
@@ -331,9 +255,7 @@ const DeleteParent = async (accessToken, parentData) => {
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
     const method = 'DELETE'
-    const headers = {
-        'Access-Token': accessToken,
-    }
+    const headers = {}
     const data = parentData
     const requestResponse = await Request(url, method, data, headers)
     if (requestResponse.isError) {
@@ -345,19 +267,11 @@ const DeleteParent = async (accessToken, parentData) => {
     response.data = requestResponse.data
     return response
 }
-const GetAttendance = async (accessToken) => {
+const GetAttendance = async () => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/attendance`
     const method = 'GET'
-    const headers = {
-        'Access-Token': accessToken,
-    }
-
+    const headers = {}
     const requestResponse = await Request(url, method, null, headers)
     if (requestResponse.isError) {
         response.isError = true

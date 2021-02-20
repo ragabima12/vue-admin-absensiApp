@@ -131,7 +131,7 @@ export default new Vuex.Store({
           return true
         } catch (exception) {
           if (exception.name === 'TokenExpiredError') {
-            const upgradeStatus = await state.dispatch('tokenUpgrade', { accessToken: accessToken, refreshToken: refreshToken })
+            const upgradeStatus = await state.dispatch('tokenUpgrade')
             if (upgradeStatus.isError) {
               console.warn(upgradeStatus.reason)
               return false
@@ -153,13 +153,6 @@ export default new Vuex.Store({
         const isSuccess = requestResponse.data.statusCode === 200
 
         if (!isError && isSuccess) {
-          const responseData = requestResponse.data.data
-          const accessToken = responseData.access_token
-          const refreshToken = responseData.refresh_token
-
-          // Store both tokens to cookie
-          Vue.$cookies.set('access-token', accessToken)
-          Vue.$cookies.set('refresh-token', refreshToken)
           return responseStatus({ data: null, isError: false, reason: null })
         }
 
@@ -167,32 +160,18 @@ export default new Vuex.Store({
       } catch (exception) {
         state.commit('setNotification', `Terjadi kesalahan saat menghubungi server, ${exception.message}`)
         return responseStatus({ data: null, isError: true, reason: exception.message })
-
       }
 
     },
-    tokenUpgrade: async (state, payload) => {
-      if (typeof payload !== 'object') return responseStatus({ data: null, isError: true, reason: `Payload that included tokens must be an object, ${typeof payload} given` })
-
-      const accessToken = payload.accessToken || null
-      const refreshToken = payload.refreshToken || null
-      const isValidToken = accessToken && refreshToken
-      if (!isValidToken) return responseStatus({ data: null, isError: true, reason: `Tokens must be included, got ${accessToken} on accessToken and ${refreshToken} on refreshToken` })
-
+    tokenUpgrade: async (state) => {
       try {
-        const requestResponse = await Request.TokenUpgrade(accessToken, refreshToken)
+        const requestResponse = await Request.TokenUpgrade()
         if (requestResponse.isError || requestResponse.data.statusCode !== 200) {
           Vue.$cookies.remove('access-token')
           Vue.$cookies.remove('refresh-token')
           state.commit('setNotification', requestResponse.reason)
           return responseStatus({ data: null, isError: true, reason: `Terjadi kesalahan saat memperbaharui token, ${requestResponse.reason}` })
         }
-
-        const responseData = requestResponse.data.data
-        const newAccessToken = responseData.access_token
-        const newRefreshToken = responseData.refresh_token
-        Vue.$cookies.set('access-token', newAccessToken)
-        Vue.$cookies.set('refresh-token', newRefreshToken)
         return responseStatus({ data: null, isError: false, reason: null })
       } catch (exception) {
         state.commit('setNotification', `Terjadi kesalahan saat memperbaharui token, ${exception.message}`)
@@ -202,10 +181,8 @@ export default new Vuex.Store({
     },
     getStudentData: async (state) => {
       await state.dispatch('isLoggedIn')
-
-      const accessToken = Vue.$cookies.get('access-token')
       try {
-        const responseStatus = await Request.GetStudents(accessToken)
+        const responseStatus = await Request.GetStudents()
         if (responseStatus.isError) {
           state.commit('setNotification', `Terjadi kesalahan saat merequest data siswa, ${responseStatus.reason}`)
           return
@@ -236,7 +213,6 @@ export default new Vuex.Store({
     },
     updateStudentData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
       const studentData = state.getters.getSelectedStudent
       let { _id: studentId, nisn, fullname, grade, major, parent, card_id } = studentData
       let parentId = null
@@ -251,7 +227,7 @@ export default new Vuex.Store({
       student.major = major
 
       try {
-        const result = await Request.UpdateStudent(accessToken, student)
+        const result = await Request.UpdateStudent(student)
         if (result.isError) {
           console.warn(result.reason)
           state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${result.reason}`)
@@ -277,7 +253,6 @@ export default new Vuex.Store({
       }
 
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
       const studentData = payload
       let { nisn, fullname, grade, major, parent, card_id } = studentData
       let parentId = null
@@ -291,7 +266,7 @@ export default new Vuex.Store({
       student.major = major
 
       try {
-        const result = await Request.StoreStudent(accessToken, student)
+        const result = await Request.StoreStudent(student)
         if (result.isError) {
           console.warn(result.reason)
           state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${result.reason}`)
@@ -312,7 +287,6 @@ export default new Vuex.Store({
     },
     deleteStudentData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
       const studentData = state.getters.getSelectedStudent
       let { _id: studentId, fullname } = studentData
       let student = {
@@ -320,7 +294,7 @@ export default new Vuex.Store({
       }
 
       try {
-        const result = await Request.DeleteStudent(accessToken, student)
+        const result = await Request.DeleteStudent(student)
         if (result.isError) {
           console.warn(result.reason)
           state.commit('setNotification', `Terjadi kesalahan saat menghapus data siswa, ${result.reason}`)
@@ -341,9 +315,8 @@ export default new Vuex.Store({
     },
     getParentData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
       try {
-        const responseStatus = await Request.GetParents(accessToken)
+        const responseStatus = await Request.GetParents()
         if (responseStatus.isError) {
           state.commit('setNotification', `Terjadi kesalahan saat merequest data orang tua, ${responseStatus.reason}`)
           return
@@ -361,7 +334,6 @@ export default new Vuex.Store({
     },
     updateParentData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
       const parentData = state.getters.getSelectedParent
       let { id, fullname, nik, email, phone_number } = parentData
       let parent = {
@@ -373,7 +345,7 @@ export default new Vuex.Store({
       }
 
       try {
-        const result = await Request.UpdateParent(accessToken, parent)
+        const result = await Request.UpdateParent(parent)
         if (result.isError) return responseStatus({ data: null, isError: true, reason: result.reason })
         if (result.data.statusCode !== 200) return responseStatus({ data: result.data.data, isError: true, reason: result.data.reason })
         await state.dispatch('getParentData')
@@ -391,7 +363,6 @@ export default new Vuex.Store({
       }
 
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
       const parentData = payload
       let { fullname, nik, email, phone_number } = parentData
       let parent = {
@@ -402,7 +373,7 @@ export default new Vuex.Store({
       }
 
       try {
-        const result = await Request.StoreParent(accessToken, parent)
+        const result = await Request.StoreParent(parent)
         if (result.isError) return responseStatus({ data: null, isError: true, reason: result.reason })
         if (result.data.statusCode !== 200) return responseStatus({ data: result.data.data, isError: true, reason: result.data.reason })
         await state.dispatch('getParentData')
@@ -415,7 +386,6 @@ export default new Vuex.Store({
 
     deleteParentData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
       const parentData = state.getters.getSelectedParent
       let { id, fullname } = parentData
       let parent = {
@@ -423,7 +393,7 @@ export default new Vuex.Store({
       }
 
       try {
-        const result = await Request.DeleteParent(accessToken, parent)
+        const result = await Request.DeleteParent(parent)
         if (result.isError) {
           console.warn(result.reason)
           state.commit('setNotification', `Terjadi kesalahan saat menghapus data orang tua, ${result.reason}`)
@@ -444,9 +414,8 @@ export default new Vuex.Store({
     },
     getAttendanceData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
       try {
-        const responseStatus = await Request.GetAttendance(accessToken)
+        const responseStatus = await Request.GetAttendance()
         if (responseStatus.isError) {
           state.commit('setNotification', `Terjadi kesalahan saat merequest kehadiran siswa, ${responseStatus.reason}`)
           return

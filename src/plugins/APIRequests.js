@@ -283,6 +283,22 @@ const GetAttendance = async () => {
     return response
 }
 
+const GetAbsences = async () => {
+    let response = { ...responseStatus }
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/absence`
+    const method = 'GET'
+    const headers = {}
+    const requestResponse = await Request(url, method, null, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
 export default {
     Login,
     TokenUpgrade,
@@ -295,5 +311,6 @@ export default {
     UpdateParent,
     StoreParent,
     DeleteParent,
-    GetAttendance
+    GetAttendance,
+    GetAbsences
 }

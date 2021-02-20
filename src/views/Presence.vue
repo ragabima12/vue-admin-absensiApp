@@ -56,7 +56,7 @@
             <v-select
               class="mt-6"
               label="Status Kehadiran"
-              :items="['Hadir', 'Tidak Hadir']"
+              :items="['hadir', 'tidak hadir', 'izin', 'sakit']"
               :value="item.attendance_status"
               solo
               dense
@@ -116,13 +116,20 @@ export default {
     PresenceDialogue,
   },
   computed: {
-    ...mapGetters(["getGrades", "getMajors", "getStudents", "getAttendances"]),
+    ...mapGetters([
+      "getGrades",
+      "getMajors",
+      "getStudents",
+      "getAttendances",
+      "getAbsences",
+    ]),
     attendances() {
       let students = this.getStudents;
       let attendances = this.getAttendances;
+      let absences = this.getAbsences;
       let search = this.search;
       let filter = this.filter;
-
+      console.log(absences);
       students = students.map((student, index) => ({
         number: index + 1,
         student_id: student._id,
@@ -153,10 +160,20 @@ export default {
           (attendance) => attendance.id_card === student.card_id
         );
 
-        let attendanceStatus = "Tidak Hadir";
+        let absenceData = absences.filter(
+          (absence) => absence.id_student === student.student_id
+        );
+
+        let attendanceStatus = "tidak hadir";
         let isPresence = attendanceData.length > 0;
+        let isAbsence = absenceData.length > 0;
+
         if (isPresence) {
-          attendanceStatus = "Hadir";
+          attendanceStatus = "hadir";
+        }
+
+        if (isAbsence) {
+          attendanceStatus = absenceData[0].absence_category.toLowerCase();
         }
 
         return {
@@ -174,6 +191,8 @@ export default {
     if (emptyStudents) await this.$store.dispatch("getStudentData");
     const emptyAttendances = !this.$store.getters.getAttendances.length;
     if (emptyAttendances) await this.$store.dispatch("getAttendanceData");
+    const emptyAbsences = !this.$store.getters.getAbsences.length;
+    if (emptyAbsences) await this.$store.dispatch("getAbsenceData");
   },
 };
 </script>

@@ -1,4 +1,5 @@
 import Axios from 'axios'
+Axios.defaults.withCredentials = true
 
 let responseStatus = {
     isError: false,
@@ -380,6 +381,8 @@ const GetAbsences = async () => {
         response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
         return response
     }
+
+    console.log(response)
 
     response.data = requestResponse.data
     return response

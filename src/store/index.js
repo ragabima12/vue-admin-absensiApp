@@ -161,13 +161,6 @@ export default new Vuex.Store({
         const isSuccess = requestResponse.data.statusCode === 200
 
         if (!isError && isSuccess) {
-          const responseData = requestResponse.data.data
-          const accessToken = responseData.access_token
-          const refreshToken = responseData.refresh_token
-
-          // Store both tokens to cookie
-          Vue.$cookies.set('access-token', accessToken)
-          Vue.$cookies.set('refresh-token', refreshToken)
           return responseStatus({ data: null, isError: false, reason: null })
         }
 
@@ -197,10 +190,6 @@ export default new Vuex.Store({
         }
 
         const responseData = requestResponse.data.data
-        const newAccessToken = responseData.access_token
-        const newRefreshToken = responseData.refresh_token
-        Vue.$cookies.set('access-token', newAccessToken)
-        Vue.$cookies.set('refresh-token', newRefreshToken)
         return responseStatus({ data: null, isError: false, reason: null })
       } catch (exception) {
         state.commit('setNotification', `Terjadi kesalahan saat memperbaharui token, ${exception.message}`)

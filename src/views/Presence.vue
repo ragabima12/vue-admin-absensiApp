@@ -127,9 +127,10 @@ export default {
       let students = this.getStudents;
       let attendances = this.getAttendances;
       let absences = this.getAbsences;
+
       let search = this.search;
       let filter = this.filter;
-      console.log(absences);
+
       students = students.map((student, index) => ({
         number: index + 1,
         student_id: student._id,

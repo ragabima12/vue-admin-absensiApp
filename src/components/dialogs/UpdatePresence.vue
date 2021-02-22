@@ -104,9 +104,7 @@
 
 <script>
 export default {
-  data: () => ({
-    items: ["Hadir", "Belum Hadir", "Izin", "Sakit"],
-  }),
+  data: () => ({}),
   props: ["isShowedDialog"],
   methods: {
     isClosedDialog() {

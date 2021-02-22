@@ -391,8 +391,6 @@ const GetAbsence = async (accessToken) => {
         return response
     }
 
-    console.log(response)
-
     response.data = requestResponse.data
     return response
 }

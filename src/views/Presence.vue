@@ -5,7 +5,6 @@
         <h2 class="app-heading-thin">Data Kehadiran</h2>
       </v-col>
     </v-row>
-
     <v-row>
       <v-col class="pa-0 pt-4 px-6" cols="7">
         <v-text-field
@@ -51,11 +50,14 @@
     </v-row>
     <v-row>
       <v-col>
+        
         <v-data-table
           :headers="headers"
           :items="attendances"
           :items-per-page="5"
           class="elevation-1"
+          :loading="isLoading"
+          no-data="Sedang perbaharui kehadiran"
         >
           <template v-slot:[`item.attendance_status`]="{ item }">
             <v-select
@@ -67,9 +69,9 @@
               dense
             ></v-select>
           </template>
-
-          <template v-slot:[`item.action`]>
-            <v-btn color="primary" dense @click="showPresenceStatus"
+          <template v-slot:[`item.action`]="item">
+          
+            <v-btn color="primary" dense @click="showPresenceStatus(item.item)"
               >Tinjau</v-btn
             >
           </template>
@@ -92,6 +94,7 @@ import { mapGetters } from "vuex";
 export default {
   data() {
     return {
+      isLoading: false,
       search: "",
       filter: {
         byMajor: null,
@@ -114,8 +117,10 @@ export default {
     };
   },
   methods: {
-    showPresenceStatus() {
+    showPresenceStatus(attendance) {
       this.showPresenceDialog = true;
+      this.$store.commit('setSelectedAttendance', attendance)
+
     },
   },
   components: {
@@ -185,12 +190,14 @@ export default {
     }
   },
   async mounted() {
+    this.isLoading = true
     const emptyStudents = !this.$store.getters.getStudents.length;
     if (emptyStudents) await this.$store.dispatch("getStudentData");
     const emptyAttendances = !this.$store.getters.getAttendances.length;
     if (emptyAttendances) await this.$store.dispatch("getAttendanceData");
     const emptyAbsences = !await this.$store.getters.getAbsences.length;
     if( emptyAbsences ) await this.$store.dispatch('getAbsenceData')
+    this.isLoading = false
   },
 };
 </script>

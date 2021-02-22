@@ -1,4 +1,5 @@
 import Axios from 'axios'
+Axios.defaults.withCredentials = true
 
 let responseStatus = {
     isError: false,
@@ -369,6 +370,31 @@ const GetAttendance = async (accessToken) => {
     return response
 }
 
+
+const GetAbsence = async (accessToken) => {
+    let response = { ...responseStatus }
+    if (typeof accessToken !== 'string') {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/absence`
+    const method = 'GET'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+
+    const requestResponse = await Request(url, method, null, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
 export default {
     Login,
     TokenUpgrade,
@@ -381,5 +407,6 @@ export default {
     UpdateParent,
     StoreParent,
     DeleteParent,
-    GetAttendance
+    GetAttendance,
+    GetAbsence
 }

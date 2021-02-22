@@ -22,6 +22,7 @@ export default new Vuex.Store({
       grades: []
     },
     attendanceData: [],
+    absenceData: [],
     parentData: [],
     sidebar: {
       title: "",
@@ -99,6 +100,13 @@ export default new Vuex.Store({
         return
       }
       state.attendanceData = payload
+    },
+    setAbsenceData: (state, payload) => {
+      if (!Array.isArray(payload)) {
+        console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
+        return
+      }
+      state.absenceData = payload
     }
   },
   actions: {
@@ -462,6 +470,25 @@ export default new Vuex.Store({
 
       }
     },
+    getAbsenceData: async (state) => {
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      try {
+        const responseStatus = await Request.GetAbsence(accessToken)
+        if (responseStatus.isError) {
+          state.commit('setNotification', `Terjadi kesalahan saat merequest ketidakhadiran siswa, ${responseStatus.reason}`)
+          return
+        }
+
+        if (responseStatus.data.statusCode === 200) {
+          let absences = responseStatus.data.data
+          state.commit('setAbsenceData', absences)
+        }
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat merequest ketidakhadiran siswa, ${exception.message}`)
+      }
+    }
   },
   modules: {
   },
@@ -495,6 +522,9 @@ export default new Vuex.Store({
     },
     getUserData: state => {
       return state.userData
+    },
+    getAbsences: state => {
+      return state.absenceData
     }
   },
 

@@ -46,6 +46,11 @@
     </v-row>
     <v-row>
       <v-col>
+        <h5 class="app-heading-thin ml-1 mb-4 app-text-subheading">Status kehadiran pada {{todayDate}}</h5>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
         <v-data-table
           :headers="headers"
           :items="attendances"
@@ -56,7 +61,7 @@
             <v-select
               class="mt-6"
               label="Status Kehadiran"
-              :items="['Hadir', 'Tidak Hadir']"
+              :items="['hadir', 'tidak hadir', 'izin', 'sakit']"
               :value="item.attendance_status"
               solo
               dense
@@ -80,6 +85,7 @@
 </template>
 
 <script>
+import Moment from 'moment'
 import PresenceDialogue from "@/components/dialogs/UpdatePresence";
 import { mapGetters } from "vuex";
 
@@ -116,13 +122,15 @@ export default {
     PresenceDialogue,
   },
   computed: {
-    ...mapGetters(["getGrades", "getMajors", "getStudents", "getAttendances"]),
+    ...mapGetters(["getGrades", "getMajors", "getStudents", "getAttendances", "getAbsences"]),
     attendances() {
       let students = this.getStudents;
       let attendances = this.getAttendances;
+      let absences = this.getAbsences
       let search = this.search;
       let filter = this.filter;
 
+      // Parsing student data
       students = students.map((student, index) => ({
         number: index + 1,
         student_id: student._id,
@@ -132,6 +140,7 @@ export default {
         card_id: student.card_id,
       }));
 
+      // Filtering student data
       if (search)
         students = students.filter(
           (student) =>
@@ -148,32 +157,40 @@ export default {
           (student) => student.grade === filter.byGrade
         );
 
-      students = students.map((student) => {
-        let attendanceData = attendances.filter(
-          (attendance) => attendance.id_card === student.card_id
-        );
 
-        let attendanceStatus = "Tidak Hadir";
-        let isPresence = attendanceData.length > 0;
-        if (isPresence) {
-          attendanceStatus = "Hadir";
-        }
+      // Filtering student attendance
+      students = students.map((student) => 
+      {
+        let attendanceData = attendances.filter((attendance) => attendance.id_card == student.card_id)[0] || null;
+        let absenceData = absences.filter((absence) => absence.id_student == student.student_id)[0] || null
+        let attendanceStatus = "hadir";
 
+        let notIsPresence = !attendanceData;
+        if (notIsPresence) attendanceStatus = "tidak hadir";
+
+        if(absenceData) attendanceStatus = absenceData.absence_category
+              
         return {
-          attendance: attendanceData[0] || null,
+          attendance: attendanceData || null,
+          absence: absenceData || null,
           attendance_status: attendanceStatus,
           ...student,
         };
       });
-
+      
       return students;
     },
+    todayDate(){
+      return Moment().locale('id').format('LL')
+    }
   },
   async mounted() {
     const emptyStudents = !this.$store.getters.getStudents.length;
     if (emptyStudents) await this.$store.dispatch("getStudentData");
     const emptyAttendances = !this.$store.getters.getAttendances.length;
     if (emptyAttendances) await this.$store.dispatch("getAttendanceData");
+    const emptyAbsences = !await this.$store.getters.getAbsences.length;
+    if( emptyAbsences ) await this.$store.dispatch('getAbsenceData')
   },
 };
 </script>

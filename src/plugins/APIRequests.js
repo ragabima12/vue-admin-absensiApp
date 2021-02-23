@@ -149,7 +149,7 @@ const UpdateStudent = async (accessToken, studentData) => {
         response.reason = `Student data must be an object, ${typeof studentData} given`
         return response
     }
-
+    
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
     const method = 'PATCH'
     const headers = {

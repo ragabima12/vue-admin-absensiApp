@@ -46,7 +46,9 @@
     </v-row>
     <v-row>
       <v-col>
-        <h5 class="app-heading-thin ml-1 mb-4 app-text-subheading">Status kehadiran pada {{todayDate}}</h5>
+        <h5 class="app-heading-thin ml-1 mb-4 app-text-subheading">
+          Status kehadiran pada {{ todayDate }}
+        </h5>
       </v-col>
     </v-row>
     <v-row>
@@ -69,6 +71,7 @@
           </template>
 
           <template v-slot:[`item.action`]>
+            {{ item }}
             <v-btn color="primary" dense @click="showPresenceStatus"
               >Tinjau</v-btn
             >
@@ -85,7 +88,7 @@
 </template>
 
 <script>
-import Moment from 'moment'
+import Moment from "moment";
 import PresenceDialogue from "@/components/dialogs/UpdatePresence";
 import { mapGetters } from "vuex";
 
@@ -122,11 +125,17 @@ export default {
     PresenceDialogue,
   },
   computed: {
-    ...mapGetters(["getGrades", "getMajors", "getStudents", "getAttendances", "getAbsences"]),
+    ...mapGetters([
+      "getGrades",
+      "getMajors",
+      "getStudents",
+      "getAttendances",
+      "getAbsences",
+    ]),
     attendances() {
       let students = this.getStudents;
       let attendances = this.getAttendances;
-      let absences = this.getAbsences
+      let absences = this.getAbsences;
       let search = this.search;
       let filter = this.filter;
 
@@ -157,19 +166,23 @@ export default {
           (student) => student.grade === filter.byGrade
         );
 
-
       // Filtering student attendance
-      students = students.map((student) => 
-      {
-        let attendanceData = attendances.filter((attendance) => attendance.id_card == student.card_id)[0] || null;
-        let absenceData = absences.filter((absence) => absence.id_student == student.student_id)[0] || null
+      students = students.map((student) => {
+        let attendanceData =
+          attendances.filter(
+            (attendance) => attendance.id_card == student.card_id
+          )[0] || null;
+        let absenceData =
+          absences.filter(
+            (absence) => absence.id_student == student.student_id
+          )[0] || null;
         let attendanceStatus = "hadir";
 
         let notIsPresence = !attendanceData;
         if (notIsPresence) attendanceStatus = "tidak hadir";
 
-        if(absenceData) attendanceStatus = absenceData.absence_category
-              
+        if (absenceData) attendanceStatus = absenceData.absence_category;
+
         return {
           attendance: attendanceData || null,
           absence: absenceData || null,
@@ -177,20 +190,20 @@ export default {
           ...student,
         };
       });
-      
+
       return students;
     },
-    todayDate(){
-      return Moment().locale('id').format('LL')
-    }
+    todayDate() {
+      return Moment().locale("id").format("LL");
+    },
   },
   async mounted() {
     const emptyStudents = !this.$store.getters.getStudents.length;
     if (emptyStudents) await this.$store.dispatch("getStudentData");
     const emptyAttendances = !this.$store.getters.getAttendances.length;
     if (emptyAttendances) await this.$store.dispatch("getAttendanceData");
-    const emptyAbsences = !await this.$store.getters.getAbsences.length;
-    if( emptyAbsences ) await this.$store.dispatch('getAbsenceData')
+    const emptyAbsences = !(await this.$store.getters.getAbsences.length);
+    if (emptyAbsences) await this.$store.dispatch("getAbsenceData");
   },
 };
 </script>

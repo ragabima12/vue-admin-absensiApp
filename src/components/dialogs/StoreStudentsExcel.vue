@@ -47,8 +47,23 @@
                     solo
                     truncate-length="12"
                     v-model="fileInput"
-                  ></v-file-input
-                ></v-col>
+                  ></v-file-input>
+                  <v-checkbox
+                    v-model="isTruncated"
+                    label="Hapus seluruh data lama yang ada pada database (Truncate)"
+                  ></v-checkbox>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-alert
+                    text
+                    outlined
+                    color="deep-orange"
+                    icon="mdi-fire"
+                    v-if="isTruncated"
+                  >
+                    Ketika anda mencentang opsi ini maka <b>seluruh data siswa dan orang tua</b> pada database akan <b>dihapus</b> dan digantikan oleh data baru. Jika anda ingin hanya menambahkan data baru kedalam database silahkan matikan opsi ini. <b>Tindakan ini tidak bisa dipulihkan kembali!</b>
+                  </v-alert>
+                  </v-col>
               </v-row>
               <v-row>
                 <v-col cols="12">
@@ -167,6 +182,7 @@ export default {
         isShowed: false,
         text: "",
       },
+      isTruncated: false,
     };
   },
 
@@ -220,7 +236,8 @@ export default {
       await this.$store.dispatch("isLoggedIn");
       const UploadResult = await Request.UploadExcelFile(
         accessToken,
-        base64ExcelFile
+        base64ExcelFile,
+        this.isTruncated
       );
 
       if (UploadResult.isError) {

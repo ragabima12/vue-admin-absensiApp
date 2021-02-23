@@ -85,14 +85,14 @@ const TokenUpgrade = async (accessToken, refreshToken) => {
     return response
 }
 
-const UploadExcelFile = async (accessToken, base64) => {
+const UploadExcelFile = async (accessToken, base64, isTruncate=false) => {
     let response = { ...responseStatus }
     if (typeof accessToken !== 'string') {
         response.isError = true
         response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
         return response
     }
-    const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/student?excel=true&truncate=${isTruncate}`
     const method = 'POST'
     const headers = {
         'Access-Token': accessToken,

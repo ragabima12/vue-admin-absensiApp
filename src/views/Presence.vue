@@ -61,13 +61,27 @@
         >
           <template v-slot:[`item.attendance_status`]="{ item }">
             <v-select
+              v-if="item.absence && !item.attendance"
               class="mt-6"
               label="Status Kehadiran"
-              :items="['hadir', 'tidak hadir', 'izin', 'sakit']"
+              :items="[{text: 'Izin',value: 'izin'}, {text: 'Sakit',value: 'sakit'}]"
+              :value="item.attendance_status"
+              readonly
+              solo
+              dense
+            >
+            </v-select>
+
+            <v-select
+              v-else
+              class="mt-6"
+              label="Status Kehadiran"
+              :items="[{text: 'Hadir',value: 'hadir'}, {text: 'Tidak Hadir',value: 'tidak hadir'}]"
               :value="item.attendance_status"
               solo
               dense
-            ></v-select>
+            >
+            </v-select>
           </template>
           <template v-slot:[`item.action`]="item">
           
@@ -134,6 +148,8 @@ export default {
       let absences = this.getAbsences
       let search = this.search;
       let filter = this.filter;
+
+      console.log(absences)
 
       // Parsing student data
       students = students.map((student, index) => ({

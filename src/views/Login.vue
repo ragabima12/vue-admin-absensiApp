@@ -3,10 +3,10 @@
     <v-col cols="5" class="pb-0" background-color="accent">
       <v-card elevation="0" height="100%" width="100%" tile>
         <v-img
-          lazy-src="https://picsum.photos/id/11/10/6"
+          lazy-src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSg9_tmtO1uCMFh0XMsel6K_XwZUGgtzeYdTg&usqp=CAU"
           height="100%"
           width="100%"
-          src="https://picsum.photos/id/11/500/300"
+          src="https://smkn3bandung.files.wordpress.com/2013/05/tampak-depan.jpg"
           gradient="to top right, rgba(100,115,201,.33), rgba(25,32,72,.7)"
         >
           <v-layout align-center justify-center fill-height>

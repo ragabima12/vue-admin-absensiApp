@@ -44,6 +44,7 @@ export default new Vuex.Store({
       email: '',
       phone_number: ''
     },
+    selectedAttendance: {},
     notification: ''
   },
   mutations: {
@@ -107,6 +108,13 @@ export default new Vuex.Store({
         return
       }
       state.absenceData = payload
+    },
+    setSelectedAttendance: (state, payload) => {
+      if (typeof payload !== 'object') {
+        console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
+        return
+      }
+      state.selectedAttendance = payload
     }
   },
   actions: {

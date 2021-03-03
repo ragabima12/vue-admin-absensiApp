@@ -77,6 +77,7 @@
             </v-select>
 
             <v-select
+              @change="updateAttendance($event, item)"
               v-else
               class="mt-6"
               label="Status Kehadiran"
@@ -141,6 +142,14 @@ export default {
       this.showPresenceDialog = true;
       this.$store.commit("setSelectedAttendance", attendance);
     },
+    updateAttendance(ev, param) {
+      console.log(ev, param.card_id);
+      let payload = {
+        "attendance-status": ev,
+        "card-id": param.card_id,
+      };
+      this.$store.dispatch("updateAttendance", payload);
+    },
   },
   components: {
     PresenceDialogue,
@@ -159,8 +168,6 @@ export default {
       let absences = this.getAbsences;
       let search = this.search;
       let filter = this.filter;
-
-      console.log(absences);
 
       // Parsing student data
       students = students.map((student, index) => ({

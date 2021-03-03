@@ -395,6 +395,28 @@ const GetAbsence = async (accessToken) => {
     return response
 }
 
+const UpdateAttendance = async (accessToken, payload) => {
+    let response = { ...responseStatus }
+    if (typeof accessToken !== 'string') {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/attendance`
+    const method = 'PATCH'
+    const data = payload
+
+    const requestResponse = await Request(url, method, data)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
 export default {
     Login,
     TokenUpgrade,
@@ -408,5 +430,6 @@ export default {
     StoreParent,
     DeleteParent,
     GetAttendance,
-    GetAbsence
+    GetAbsence,
+    UpdateAttendance
 }

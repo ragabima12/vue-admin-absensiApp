@@ -97,6 +97,7 @@
                   <h4 class="app-heading-thin app-text-subheading">
                     Nama Orangtua
                   </h4>
+                  {{ getSelectedStudent }}
                   <v-autocomplete
                     v-model="getSelectedStudent.parent"
                     :items="getParents"

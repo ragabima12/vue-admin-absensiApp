@@ -42,6 +42,13 @@
           v-model="filter.byGrade"
         ></v-select>
       </v-col>
+      <v-spacer></v-spacer>
+      <v-col cols="3" class="pl-1 pr-0 mt-4">
+        <v-btn @click="showPermissionDialog" width="150" large color="#15D46D">
+          <v-icon left color="white">mdi-clipboard-list</v-icon>
+          <h4 class="app-text-white app-heading-thin">Buat Izin</h4>
+        </v-btn>
+      </v-col>
     </v-row>
     <v-row>
       <v-col>
@@ -100,6 +107,11 @@
       </v-col>
     </v-row>
 
+    <PermissionDialog
+      :isShowedDialog="showPermission"
+      @closed="showPermission = false"
+    />
+
     <PresenceDialogue
       @closed="showPresenceDialog = false"
       :isShowedDialog="showPresenceDialog"
@@ -110,11 +122,13 @@
 <script>
 import Moment from "moment";
 import PresenceDialogue from "@/components/dialogs/UpdatePresence";
+import PermissionDialog from "@/components/dialogs/CreatePermission";
 import { mapGetters } from "vuex";
 
 export default {
   data() {
     return {
+      showPermission: false,
       isLoading: false,
       search: "",
       filter: {
@@ -138,6 +152,9 @@ export default {
     };
   },
   methods: {
+    showPermissionDialog() {
+      this.showPermission = true;
+    },
     showPresenceStatus(attendance) {
       this.showPresenceDialog = true;
       this.$store.commit("setSelectedAttendance", attendance);
@@ -153,6 +170,7 @@ export default {
   },
   components: {
     PresenceDialogue,
+    PermissionDialog,
   },
   computed: {
     ...mapGetters([

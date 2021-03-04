@@ -44,7 +44,6 @@
                   </h4>
                   <v-text-field
                     v-model="student.fullname"
-                    rounded
                     solo
                     label="Masukan Nama Lengkap"
                     :disabled="isLoading"
@@ -54,7 +53,6 @@
                   <h4 class="app-heading-thin app-text-subheading">NISN</h4>
                   <v-text-field
                     v-model="student.nisn"
-                    rounded
                     solo
                     label="Masukan NISN"
                     :disabled="isLoading"
@@ -66,7 +64,6 @@
                   <h4 class="app-heading-thin app-text-subheading">ID Card</h4>
                   <v-text-field
                     v-model="student.card_id"
-                    rounded
                     solo
                     label="Masukan Nama Lengkap"
                     :disabled="isLoading"
@@ -77,7 +74,6 @@
                 <v-col cols="5">
                   <h4 class="app-heading-thin app-text-subheading">Jurusan</h4>
                   <v-select
-                    rounded
                     solo
                     :items="getMajors"
                     v-model="student.major"
@@ -88,7 +84,6 @@
                 <v-col cols="5">
                   <h4 class="app-heading-thin app-text-subheading">Kelas</h4>
                   <v-select
-                    rounded
                     solo
                     :items="getGrades"
                     v-model="student.grade"
@@ -107,7 +102,6 @@
                     :items="getParents"
                     :search-input.sync="search"
                     solo
-                    rounded
                     color="blue-grey lighten-2"
                     label="Nama Orangtua"
                     clearable

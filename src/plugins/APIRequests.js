@@ -417,6 +417,37 @@ const UpdateAttendance = async (accessToken, payload) => {
     return response
 }
 
+const StoreAbsence = async (accessToken, absenceData) => {
+    let response = { ...responseStatus }
+    if (typeof accessToken !== 'string') {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+
+    if (typeof absenceData !== 'object') {
+        response.isError = true
+        response.reason = `Absence Data must be an object, ${typeof absenceData} given`
+        return response
+    }
+
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/absence`
+    const method = 'POST'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    const data = absenceData
+    const requestResponse = await Request(url, method, data, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
 export default {
     Login,
     TokenUpgrade,
@@ -431,5 +462,6 @@ export default {
     DeleteParent,
     GetAttendance,
     GetAbsence,
-    UpdateAttendance
+    UpdateAttendance,
+    StoreAbsence
 }

@@ -525,8 +525,33 @@ export default new Vuex.Store({
         console.warn(exception.message)
         state.commit('setNotification', `Terjadi kesalahan saat merequest ketidakhadiran siswa, ${exception.message}`)
       }
-      
-    }
+    },
+    storeAbsence: async (state, payload) => {
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+
+      try {
+        const result = await Request.StoreAbsence(accessToken, payload)
+        console.log(result)
+        if (result.isError) {
+          console.warn(result.reason)
+          state.commit('setNotification', `Terjadi kesalahan saat memperbaharui status kehadiran, ${result.reason}`)
+          return responseStatus({ data: null, isError: true, reason: result.reason })
+        }
+
+        const statusCode = result.data.statusCode
+        if (statusCode !== 200) return responseStatus({ data: null, isError: true, reason: result.data.reason })
+
+        await state.dispatch('getAttendanceData')
+        await state.dispatch('getAbsenceData')
+        state.commit('setNotification', `Status kehadiran berhasil di perbaharui`)
+        return responseStatus({ data: null, isError: false, reason: null })
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data siswa, ${exception.message}`)
+        return responseStatus({ data: null, isError: true, reason: exception.message })
+      }
+    },
   },
   modules: {
   },

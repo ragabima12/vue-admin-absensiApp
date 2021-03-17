@@ -122,7 +122,7 @@
 <script>
 import Moment from "moment";
 import PresenceDialogue from "@/components/dialogs/UpdatePresence";
-import PermissionDialog from "@/components/dialogs/CreatePermission";
+import PermissionDialog from "@/components/dialogs/StoreAbsence";
 import { mapGetters } from "vuex";
 
 export default {

@@ -32,6 +32,7 @@
           label="Jurusan"
           solo
           v-model="filter.byMajor"
+          clearable
         ></v-select>
       </v-col>
       <v-col cols="3" class="ml-4 pr-0 mt-3">
@@ -40,6 +41,7 @@
           label="Kelas"
           solo
           v-model="filter.byGrade"
+          clearable
         ></v-select>
       </v-col>
       <v-spacer></v-spacer>
@@ -67,16 +69,19 @@
           :loading="isLoading"
           no-data="Sedang perbaharui kehadiran"
         >
-          <template v-slot:[`item.attendance_status`]="{ item }">
+          <template v-slot:[`item.attendance`]="{ item }">
+            {{ item }}
             <v-select
-              v-if="item.absence && !item.attendance"
+              v-if="
+                ['sakit', 'izin'].includes(item.attendance.attendance_status)
+              "
               class="mt-6"
               label="Status Kehadiran"
               :items="[
                 { text: 'Izin', value: 'izin' },
                 { text: 'Sakit', value: 'sakit' },
               ]"
-              :value="item.attendance_status"
+              :value="item.attendance.attendance_status"
               readonly
               solo
               dense
@@ -92,11 +97,10 @@
                 { text: 'Hadir', value: 'hadir' },
                 { text: 'Tidak Hadir', value: 'tidak hadir' },
               ]"
-              :value="item.attendance_status"
+              :value="item.attendance.attendance_status"
               solo
               dense
-            >
-            </v-select>
+            ></v-select>
           </template>
           <template v-slot:[`item.action`]="item">
             <v-btn color="primary" dense @click="showPresenceStatus(item.item)"
@@ -146,7 +150,7 @@ export default {
         { text: "Nama Lengkap", value: "fullname" },
         { text: "Jurusan", value: "major" },
         { text: "Kelas", value: "grade" },
-        { text: "Status Kehadiran", value: "attendance_status" },
+        { text: "Status Kehadiran", value: "attendance" },
         { text: "Aksi", value: "action" },
       ],
     };
@@ -216,25 +220,18 @@ export default {
 
       // Filtering student attendance
       students = students.map((student) => {
-        let attendanceData =
-          attendances.filter(
-            (attendance) => attendance.id_card == student.card_id
-          )[0] || null;
-        let absenceData =
-          absences.filter(
-            (absence) => absence.id_student == student.student_id
-          )[0] || null;
-        let attendanceStatus = "hadir";
+        let attendanceData = attendances.filter(
+          (attendance) => attendance.id_student === student.student_id
+        );
 
-        let notIsPresence = !attendanceData;
-        if (notIsPresence) attendanceStatus = "tidak hadir";
+        console.log(attendanceData);
 
-        if (absenceData) attendanceStatus = absenceData.absence_category;
+        attendanceData = attendanceData[0] || {
+          attendance_status: "tidak hadir",
+        };
 
         return {
-          attendance: attendanceData || null,
-          absence: absenceData || null,
-          attendance_status: attendanceStatus,
+          attendance: attendanceData,
           ...student,
         };
       });

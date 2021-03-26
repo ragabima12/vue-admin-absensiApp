@@ -192,11 +192,12 @@ export default new Vuex.Store({
 
       const accessToken = payload.accessToken || null
       const refreshToken = payload.refreshToken || null
-      const isValidToken = accessToken && refreshToken
-      if (!isValidToken) return responseStatus({ data: null, isError: true, reason: `Tokens must be included, got ${accessToken} on accessToken and ${refreshToken} on refreshToken` })
+      if (!accessToken || !refreshToken) return responseStatus({ data: null, isError: true, reason: `Tokens must be included, got ${accessToken} on accessToken and ${refreshToken} on refreshToken` })
 
       try {
         const requestResponse = await Request.TokenUpgrade(accessToken, refreshToken)
+        console.log(requestResponse)
+        
         if (requestResponse.isError || requestResponse.data.statusCode !== 200) {
           Vue.$cookies.remove('access-token')
           Vue.$cookies.remove('refresh-token')
@@ -252,6 +253,7 @@ export default new Vuex.Store({
     },
     updateStudentData: async (state) => {
       await state.dispatch('isLoggedIn')
+
       const accessToken = Vue.$cookies.get('access-token')
       const studentData = state.getters.getSelectedStudent
       let { _id: studentId, nisn, fullname, grade, major, parent, card_id } = studentData
@@ -293,6 +295,7 @@ export default new Vuex.Store({
       }
 
       await state.dispatch('isLoggedIn')
+
       const accessToken = Vue.$cookies.get('access-token')
       const studentData = payload
       let { nisn, fullname, grade, major, parent, card_id } = studentData
@@ -503,6 +506,8 @@ export default new Vuex.Store({
         console.log(payload)
         return responseStatus({ data: null, isError: true, reason: `Payload must be an object, ${typeof payload} given` })
       } 
+
+      await state.dispatch('isLoggedIn')
       const accessToken = Vue.$cookies.get('access-token')
       state.commit('setNotification', `Memperbaharui status kehadiran ...`)
 

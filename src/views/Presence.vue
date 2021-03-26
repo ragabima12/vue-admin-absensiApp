@@ -70,18 +70,15 @@
           no-data="Sedang perbaharui kehadiran"
         >
           <template v-slot:[`item.attendance`]="{ item }">
-            {{ item }}
             <v-select
-              v-if="
-                ['sakit', 'izin'].includes(item.attendance.attendance_status)
-              "
+              v-if="['sakit', 'izin'].includes(item.attendance.status)"
               class="mt-6"
               label="Status Kehadiran"
               :items="[
                 { text: 'Izin', value: 'izin' },
                 { text: 'Sakit', value: 'sakit' },
               ]"
-              :value="item.attendance.attendance_status"
+              :value="item.attendance.status"
               readonly
               solo
               dense
@@ -97,7 +94,7 @@
                 { text: 'Hadir', value: 'hadir' },
                 { text: 'Tidak Hadir', value: 'tidak hadir' },
               ]"
-              :value="item.attendance.attendance_status"
+              :value="item.attendance.status"
               solo
               dense
             ></v-select>
@@ -125,7 +122,7 @@
 
 <script>
 import Moment from "moment";
-import PresenceDialogue from "@/components/dialogs/UpdatePresence";
+import PresenceDialogue from "@/components/dialogs/DetailedPresence";
 import PermissionDialog from "@/components/dialogs/StoreAbsence";
 import { mapGetters } from "vuex";
 
@@ -221,17 +218,40 @@ export default {
       // Filtering student attendance
       students = students.map((student) => {
         let attendanceData = attendances.filter(
-          (attendance) => attendance.id_student === student.student_id
+          (attendance) => attendance.student_id === student.student_id
         );
 
-        console.log(attendanceData);
+        const isPresence = attendanceData.length > 0;
+        if (isPresence) {
+          return {
+            attendance: {
+              status: "hadir",
+              detail: attendanceData[0],
+            },
+            ...student,
+          };
+        }
 
-        attendanceData = attendanceData[0] || {
-          attendance_status: "tidak hadir",
-        };
+        let absenceData = absences.filter(
+          (absence) => absence.id_student === student.student_id
+        );
+
+        const isAbsence = absenceData.length > 0;
+        if (isAbsence) {
+          return {
+            attendance: {
+              status: absenceData[0].absence_category,
+              detail: absenceData[0],
+            },
+            ...student,
+          };
+        }
 
         return {
-          attendance: attendanceData,
+          attendance: {
+            status: "tidak hadir",
+            detail: null,
+          },
           ...student,
         };
       });

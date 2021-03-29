@@ -102,12 +102,12 @@ export default {
         this.sidebar.menus = [
           {
             text: "Data Siswa",
-            icon: "mdi-list-status",
+            icon: "mdi-account-circle",
             action: "studentData",
           },
           {
             text: "Data Orangtua Siswa",
-            icon: "mdi-calendar",
+            icon: "mdi-account-multiple",
             action: "parentData",
           },
         ];
@@ -126,8 +126,8 @@ export default {
         this.sidebar.title = "Konfigurasi";
         this.sidebar.menus = [
           {
-            text: "Hak Akses",
-            icon: "mdi-list-status",
+            text: "Konfigurasi Waktu",
+            icon: "mdi-clock-time-four",
             action: "manageAccount",
           },
         ];

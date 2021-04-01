@@ -15,6 +15,14 @@ let responseStatus = ({ data, isError, reason }) => ({
 
 export default new Vuex.Store({
   state: {
+    accountData: [],
+    selectedAccount: {},
+    configData: {
+      min_attendance_time: "",
+      max_attendance_time: "",
+      min_leaving_time: "",
+      max_leaving_time: ""
+    },
     userData: {},
     studentData: {
       students: [],
@@ -115,7 +123,52 @@ export default new Vuex.Store({
         return
       }
       state.selectedAttendance = payload
-    }
+    },
+    setMinPresence: (state, payload) => {
+      if(typeof payload !== "string") {
+        console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
+        return
+      }
+      
+      state.configData.min_attendance_time = payload
+    },
+    setMaxPresence: (state, payload) => {
+      if(typeof payload !== "string") {
+        console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
+        return
+      }
+      state.configData.max_attendance_time = payload
+    },
+    setMinLeaving: (state, payload) => {
+      if(typeof payload !== "string") {
+        console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
+        return
+      }
+      state.configData.min_leaving_time = payload
+    },
+    setMaxLeaving: (state, payload) => {
+      if(typeof payload !== "string") {
+        console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
+        return
+      }
+      state.configData.max_leaving_time = payload
+    },
+    setConfigData: (state, payload) => {
+      if( typeof payload !== 'object' ) console.warn(`[WARN] Payload is not an object, ${typeof payload} giver`)
+      state.configData = payload
+      console.log('OK!')
+    },
+    setAccountData: (state, payload) => {
+      if (!Array.isArray(payload)) {
+        console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
+        return
+      }
+      state.accountData = payload
+    },
+    setSelectedAccount: (state, payload) => {
+      if( typeof payload !== 'object' ) console.warn(`[WARN] Payload is not an object, ${typeof payload} giver`)
+      state.selectedAccount = payload
+    },
   },
   actions: {
     isLoggedIn: async (state) => {
@@ -196,7 +249,7 @@ export default new Vuex.Store({
 
       try {
         const requestResponse = await Request.TokenUpgrade(accessToken, refreshToken)
-        console.log(requestResponse)
+        
         
         if (requestResponse.isError || requestResponse.data.statusCode !== 200) {
           Vue.$cookies.remove('access-token')
@@ -503,7 +556,6 @@ export default new Vuex.Store({
     updateAttendance: async (state, payload) => {
       if (typeof payload !== 'object') {
         console.warn(`Payload must be an object, ${typeof payload} given`)
-        console.log(payload)
         return responseStatus({ data: null, isError: true, reason: `Payload must be an object, ${typeof payload} given` })
       } 
 
@@ -537,7 +589,7 @@ export default new Vuex.Store({
 
       try {
         const result = await Request.StoreAbsence(accessToken, payload)
-        console.log(result)
+        
         if (result.isError) {
           console.warn(result.reason)
           state.commit('setNotification', `Terjadi kesalahan saat memperbaharui status kehadiran, ${result.reason}`)
@@ -557,6 +609,163 @@ export default new Vuex.Store({
         return responseStatus({ data: null, isError: true, reason: exception.message })
       }
     },
+    updateConfig: async (state) => {
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      const data = {
+        'min-presence-time': state.state.configData.min_attendance_time,
+        'max-presence-time': state.state.configData.max_attendance_time,
+        'min-leaving-time': state.state.configData.min_leaving_time,
+        'max-leaving-time': state.state.configData.max_leaving_time
+      }
+
+      try {
+        const result = await Request.UpdateConfig(accessToken, data)
+        if (result.isError) {
+          console.warn(result.reason)
+          state.commit('setNotification', `Terjadi kesalahan saat memperbaharui waktu, ${result.reason}`)
+          return responseStatus({ data: null, isError: true, reason: result.reason })
+        }
+
+        const statusCode = result.data.statusCode
+        if (statusCode !== 200) return responseStatus({ data: null, isError: true, reason: result.data.reason })
+
+        await state.dispatch('getConfig')
+        state.commit('setNotification', `Waktu berhasil di perbaharui`)
+        return responseStatus({ data: null, isError: false, reason: null })
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui waktu, ${exception.message}`)
+        return responseStatus({ data: null, isError: true, reason: exception.message })
+      }
+    },
+
+    getConfig: async(state) => {
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      try {
+        const responseStatus = await Request.GetConfig(accessToken)
+        if (responseStatus.isError) {
+          state.commit('setNotification', `Terjadi kesalahan saat merequest konfigurasi aplikasi, ${responseStatus.reason}`)
+          return
+        }
+
+        if (responseStatus.data.statusCode === 200) {
+          let configs = responseStatus.data.data
+          state.commit('setConfigData', configs)
+        }
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat merequest perbaharui password, ${exception.message}`)
+      }
+    },
+    updateAccountPassword: async(state, payload) => {
+
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+
+      if (typeof payload !== 'object') {
+        console.warn(`Payload must be an object, ${typeof payload} given`)
+        return responseStatus({ data: null, isError: true, reason: `Payload must be an object, ${typeof payload} given` })
+      } 
+      try {
+        const responseStatus = await Request.UpdateAccountPassword(accessToken, payload)
+        if (responseStatus.isError) {
+          state.commit('setNotification', `Terjadi kesalahan saat merequest perbaharui password, ${responseStatus.reason}`)
+          return
+        }
+
+        if (responseStatus.data.statusCode === 200) {
+          state.commit('setNotification', `Password berhasil di perbaharui`)
+          return
+        }
+        
+        state.commit('setNotification', `Terjadi kesalahan saat merequest perbaharui password, ${responseStatus.data.reason}`)
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat merequest perbaharui password, ${exception.message}`)
+      }
+    },
+    storeAccount: async(state,payload) => {
+
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      if (typeof payload !== 'object') {
+        console.warn(`Payload must be an object, ${typeof payload} given`)
+        return responseStatus({ data: null, isError: true, reason: `Payload must be an object, ${typeof payload} given` })
+      } 
+      try {
+        const responseStatus = await Request.StoreAccount(accessToken, payload)
+        if (responseStatus.isError) {
+          state.commit('setNotification', `Terjadi kesalahan saat merequest data akun, ${responseStatus.reason}`)
+          return
+        }
+
+        if (responseStatus.data.statusCode === 200) {
+          state.commit('setNotification', `Data berhasil ditambah`)
+          return
+        }
+        
+        state.commit('setNotification', `Terjadi kesalahan saat merequest data akun, ${responseStatus.data.reason}`)
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat merequest data akun, ${exception.message}`)
+      }
+    },
+    getAccount: async(state) => {
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+      try {
+        const responseStatus = await Request.GetAccount(accessToken)
+        if (responseStatus.isError) {
+          state.commit('setNotification', `Terjadi kesalahan saat merequest data akun, ${responseStatus.reason}`)
+          return
+        }
+
+        if (responseStatus.data.statusCode === 200) {
+          let account = responseStatus.data.data
+          state.commit('setAccountData', account)
+          return
+        }
+        
+        state.commit('setNotification', `Terjadi kesalahan saat merequest data akun, ${responseStatus.data.reason}`)
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat merequest data akun, ${exception.message}`)
+      }
+    },
+
+    updateAccount: async(state, payload) => {
+      await state.dispatch('isLoggedIn')
+      const accessToken = Vue.$cookies.get('access-token')
+
+      if (typeof payload !== 'object') {
+        console.warn(`Payload must be an object, ${typeof payload} given`)
+        return responseStatus({ data: null, isError: true, reason: `Payload must be an object, ${typeof payload} given` })
+      } 
+
+      try {
+        const responseStatus = await Request.UpdateAccount(accessToken, payload)
+        console.log(responseStatus)
+        if (responseStatus.isError) {
+          state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data akun, ${responseStatus.reason}`)
+          return
+        }
+
+        if (responseStatus.data.statusCode === 200) {
+          let result = responseStatus.data.data
+          state.commit('setNotification', `Berhasil memperbaharui data akun ${payload.fullname}`)
+          return
+        }
+        
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data akun, ${responseStatus.data.reason}`)
+      } catch (exception) {
+        console.warn(exception.message)
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data akun, ${exception.message}`)
+      }
+    },
+    
+
   },
   modules: {
   },
@@ -593,6 +802,15 @@ export default new Vuex.Store({
     },
     getAbsences: state => {
       return state.absenceData
+    },
+    getConfigs: state => {
+      return state.configData
+    },
+    getAccountData: state => {
+      return state.accountData
+    },
+    getSelectedAccount: state => {
+      return state.selectedAccount
     }
   },
 

@@ -5,50 +5,85 @@
         <h2 class="app-heading-thin">Konfigurasi Waktu</h2>
       </v-col>
     </v-row>
-    <v-row class="pa-0 pt-4 px-3">
-      <v-col cols="4">
+    <v-row class="pa-0 pb-0 pt-4 px-3">
+      <v-col class="pr-0" cols="4">
         <h4 class="app-heading-thin app-text-subheading">
           Waktu Masuk Sekolah
         </h4>
-        <v-dialog
-          ref="dialog"
-          v-model="modal2"
-          :return-value.sync="time"
-          persistent
-          width="290px"
+        <v-text-field
+          @click="showTimeDialog('presence')"
+          readonly
+          prepend-inner-icon="mdi-clock"
+          solo
+          clearable
+          label="Waktu Presensi"
+          :value="`${getConfigs.min_attendance_time} - ${getConfigs.max_attendance_time}`"
         >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              solo
-              v-model="time"
-              label="Picker in dialog"
-              prepend-inner-icon="mdi-clock-time-four-outline"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-            ></v-text-field>
-          </template>
-          <v-time-picker v-if="modal2" v-model="time" full-width>
-            <v-spacer></v-spacer>
-            <v-btn text color="primary" @click="modal2 = false"> Cancel </v-btn>
-            <v-btn text color="primary" @click="$refs.dialog.save(time)">
-              OK
-            </v-btn>
-          </v-time-picker>
-        </v-dialog>
+        </v-text-field>
       </v-col>
+      <v-col class="pl-0 pr-0 text-center my-auto" cols="1">
+        <v-icon>mdi-minus</v-icon>
+      </v-col>
+      <v-col class="pl-0" cols="4">
+        <h4 class="app-heading-thin app-text-subheading">
+          Waktu Pulang Sekolah
+        </h4>
+        <v-text-field
+          @click="showTimeDialog('leaving')"
+          readonly
+          clearable
+          prepend-inner-icon="mdi-clock"
+          solo
+          label="Waktu Pulang"
+          :value="`${getConfigs.min_leaving_time} - ${getConfigs.max_leaving_time}`"
+        >
+        </v-text-field>
+      </v-col>
+      <v-col class="pt-10" cols="3"
+        ><v-btn @click="submitTime" large color="#15D46D"
+          ><h4 class="app-heading-thin app-text-white">Perbarui</h4></v-btn
+        ></v-col
+      >
     </v-row>
+
+    <TimeDialog
+      :mode="mode"
+      :isShowedDialog="showTime"
+      @closed="showTime = false"
+    />
   </div>
 </template>
 
 <script>
+import TimeDialog from "@/components/dialogs/ShowTime.vue";
+import { mapGetters } from "vuex";
+
 export default {
   data() {
     return {
-      time: null,
-
-      modal2: false,
+      mode: "presence",
+      showTime: false,
     };
+  },
+  components: {
+    TimeDialog,
+  },
+  methods: {
+    showTimeDialog(param) {
+      this.mode = param;
+      this.showTime = true;
+    },
+    async submitTime() {
+      await this.$store.dispatch("updateConfig");
+    },
+  },
+  computed: {
+    ...mapGetters(["getConfigs"]),
+  },
+
+  async mounted() {
+    const emptyConfigs = !this.$store.getters.getConfigs.length;
+    if (emptyConfigs) await this.$store.dispatch("getConfig");
   },
 };
 </script>

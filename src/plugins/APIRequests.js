@@ -448,6 +448,171 @@ const StoreAbsence = async (accessToken, absenceData) => {
     return response
 }
 
+const UpdateConfig = async (accessToken, payload) => {
+    let response = {...responseStatus}
+    if(typeof accessToken !== "string") {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+
+    if (typeof payload !== 'object') {
+        response.isError = true
+        response.reason = `Payload must be an object, ${typeof absenceData} given`
+        return response
+    }
+
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/config`
+    const method = 'PATCH'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    const data = payload
+
+    const requestResponse = await Request(url, method, data, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+const GetConfig = async (accessToken) => {
+    let response = {...responseStatus}
+    if(typeof accessToken !== "string") {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/config`
+    const method = 'GET'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    
+
+    const requestResponse = await Request(url, method, null, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
+const UpdateAccountPassword = async (accessToken, payload) => {
+    let response = {...responseStatus}
+    if(typeof accessToken !== "string") {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/account/password`
+    const method = 'PATCH'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    const data = payload
+    
+
+    const requestResponse = await Request(url, method, data, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
+const StoreAccount = async (accessToken, payload) => {
+    let response = {...responseStatus}
+    if(typeof accessToken !== "string") {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/account`
+    const method = 'POST'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    const data = payload
+    
+
+    const requestResponse = await Request(url, method, data, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
+const GetAccount = async (accessToken) => {
+    let response = {...responseStatus}
+    if(typeof accessToken !== "string") {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/account`
+    const method = 'GET'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    
+
+    const requestResponse = await Request(url, method, null, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
+const UpdateAccount = async (accessToken, payload) => {
+    let response = {...responseStatus}
+    if(typeof accessToken !== "string") {
+        response.isError = true
+        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
+        return response
+    }
+
+    const url = `${process.env.VUE_APP_API_HOST}/api/v1/account`
+    const method = 'PATCH'
+    const headers = {
+        'Access-Token': accessToken,
+    }
+    
+    const data = payload
+
+    const requestResponse = await Request(url, method, data, headers)
+    if (requestResponse.isError) {
+        response.isError = true
+        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
+        return response
+    }
+
+    response.data = requestResponse.data
+    return response
+}
+
+
 export default {
     Login,
     TokenUpgrade,
@@ -463,5 +628,11 @@ export default {
     GetAttendance,
     GetAbsence,
     UpdateAttendance,
-    StoreAbsence
+    StoreAbsence,
+    UpdateConfig,
+    GetConfig,
+    StoreAccount,
+    GetAccount,
+    UpdateAccountPassword,
+    UpdateAccount
 }

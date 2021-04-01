@@ -47,6 +47,8 @@
               <v-col class="pb-0" cols="12">
                 <h4 class="app-text-thin mb-2">Password Lama</h4>
                 <v-text-field
+                  :disabled="isLoading"
+                  v-model="oldPassword"
                   placeholder="Masukan Password Lama"
                   solo
                 ></v-text-field>
@@ -54,6 +56,8 @@
               <v-col class="pb-0" cols="12">
                 <h4 class="app-text-thin mb-2">Password Baru</h4>
                 <v-text-field
+                  :disabled="isLoading"
+                  v-model="newPassword"
                   placeholder="Masukan Password Baru"
                   solo
                 ></v-text-field>
@@ -61,6 +65,8 @@
               <v-col class="pb-0" cols="12">
                 <h4 class="app-text-thin mb-2">Konfirmasi Password</h4>
                 <v-text-field
+                  :disabled="isLoading"
+                  v-model="confirmPassword"
                   placeholder="Masukan Konfirmasi Password"
                   solo
                 ></v-text-field>
@@ -71,7 +77,9 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text><h4 class="app-heading-thin">Perbaharui</h4></v-btn>
+          <v-btn :loading="isLoading" @click="updateAccount" text
+            ><h4 class="app-heading-thin">Perbaharui</h4></v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -82,6 +90,14 @@
 import { mapGetters } from "vuex";
 
 export default {
+  data() {
+    return {
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+      isLoading: false,
+    };
+  },
   props: ["isShowedDialog"],
   methods: {
     isClosedDialog() {
@@ -89,6 +105,18 @@ export default {
       this.isSuccess = false;
       this.errors = [];
       this.$emit("closed", true);
+    },
+    async updateAccount() {
+      this.isLoading = true;
+      const password = {
+        "old-password": this.oldPassword,
+        "new-password": this.newPassword,
+        "confirm-password": this.confirmPassword,
+      };
+
+      await this.$store.dispatch("updateAccountPassword", password);
+
+      this.isLoading = false;
     },
   },
   computed: {

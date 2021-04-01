@@ -137,6 +137,21 @@ export default {
           },
         };
       }
+      if (currentPath.toLowerCase().indexOf("/dashboard/accounts") > -1) {
+        this.sidebar.title = "Data Akun";
+        this.sidebar.menus = [
+          {
+            text: "Data Akun",
+            icon: "mdi-account",
+            action: "accountData",
+          },
+        ];
+        this.sidebar.actions = {
+          accountData() {
+            return this.$router.push("/dashboard/accounts").catch(() => {});
+          },
+        };
+      }
       return this.sidebar;
     },
   },

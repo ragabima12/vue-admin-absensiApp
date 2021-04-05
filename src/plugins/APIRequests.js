@@ -62,16 +62,11 @@ const Login = async (username, password) => {
 
 const TokenUpgrade = async (accessToken, refreshToken) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string' || typeof refreshToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token and Refresh token must be a string, given ${typeof accessToken} on Access Token, and ${typeof refreshToken} on Refresh Token`
-        return response
-    }
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/auth/token`
     const method = 'GET'
     const headers = {
-        'Access-Token': accessToken,
-        'Refresh-Token': refreshToken
+        'Access-Token': accessToken || '',
+        'Refresh-Token': refreshToken || ''
     }
 
     const requestResponse = await Request(url, method, null, headers)
@@ -87,15 +82,11 @@ const TokenUpgrade = async (accessToken, refreshToken) => {
 
 const UploadExcelFile = async (accessToken, base64, isTruncate=false) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
+
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student?excel=true&truncate=${isTruncate}`
     const method = 'POST'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken  || '',
     }
     const data = {
         'excel-file': base64
@@ -114,15 +105,11 @@ const UploadExcelFile = async (accessToken, base64, isTruncate=false) => {
 
 const GetStudents = async (accessToken) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
+
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
     const method = 'GET'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
 
     const requestResponse = await Request(url, method, null, headers)
@@ -138,11 +125,6 @@ const GetStudents = async (accessToken) => {
 
 const UpdateStudent = async (accessToken, studentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     if (typeof studentData !== 'object') {
         response.isError = true
@@ -153,7 +135,7 @@ const UpdateStudent = async (accessToken, studentData) => {
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
     const method = 'PATCH'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     const data = studentData
     const requestResponse = await Request(url, method, data, headers)
@@ -169,11 +151,6 @@ const UpdateStudent = async (accessToken, studentData) => {
 
 const StoreStudent = async (accessToken, studentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     if (typeof studentData !== 'object') {
         response.isError = true
@@ -184,7 +161,7 @@ const StoreStudent = async (accessToken, studentData) => {
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
     const method = 'POST'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     const data = studentData
     const requestResponse = await Request(url, method, data, headers)
@@ -200,11 +177,6 @@ const StoreStudent = async (accessToken, studentData) => {
 
 const DeleteStudent = async (accessToken, studentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     if (typeof studentData !== 'object') {
         response.isError = true
@@ -215,7 +187,7 @@ const DeleteStudent = async (accessToken, studentData) => {
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/student`
     const method = 'DELETE'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     const data = studentData
     const requestResponse = await Request(url, method, data, headers)
@@ -231,15 +203,11 @@ const DeleteStudent = async (accessToken, studentData) => {
 
 const GetParents = async (accessToken) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
+
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
     const method = 'GET'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
 
     const requestResponse = await Request(url, method, null, headers)
@@ -255,11 +223,6 @@ const GetParents = async (accessToken) => {
 
 const UpdateParent = async (accessToken, parentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     if (typeof parentData !== 'object') {
         response.isError = true
@@ -270,7 +233,7 @@ const UpdateParent = async (accessToken, parentData) => {
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
     const method = 'PATCH'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     const data = parentData
     const requestResponse = await Request(url, method, data, headers)
@@ -286,11 +249,6 @@ const UpdateParent = async (accessToken, parentData) => {
 
 const StoreParent = async (accessToken, parentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     if (typeof parentData !== 'object') {
         response.isError = true
@@ -301,7 +259,7 @@ const StoreParent = async (accessToken, parentData) => {
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
     const method = 'POST'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     const data = parentData
     const requestResponse = await Request(url, method, data, headers)
@@ -318,11 +276,6 @@ const StoreParent = async (accessToken, parentData) => {
 
 const DeleteParent = async (accessToken, parentData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     if (typeof parentData !== 'object') {
         response.isError = true
@@ -333,7 +286,7 @@ const DeleteParent = async (accessToken, parentData) => {
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
     const method = 'DELETE'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     const data = parentData
     const requestResponse = await Request(url, method, data, headers)
@@ -348,15 +301,11 @@ const DeleteParent = async (accessToken, parentData) => {
 }
 const GetAttendance = async (accessToken) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
+
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/attendance`
     const method = 'GET'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
 
     const requestResponse = await Request(url, method, null, headers)
@@ -373,15 +322,11 @@ const GetAttendance = async (accessToken) => {
 
 const GetAbsence = async (accessToken) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
+
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/absence`
     const method = 'GET'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
 
     const requestResponse = await Request(url, method, null, headers)
@@ -397,11 +342,7 @@ const GetAbsence = async (accessToken) => {
 
 const UpdateAttendance = async (accessToken, payload) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
+
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/attendance`
     const method = 'PATCH'
     const data = payload
@@ -419,11 +360,6 @@ const UpdateAttendance = async (accessToken, payload) => {
 
 const StoreAbsence = async (accessToken, absenceData) => {
     let response = { ...responseStatus }
-    if (typeof accessToken !== 'string') {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     if (typeof absenceData !== 'object') {
         response.isError = true
@@ -434,7 +370,7 @@ const StoreAbsence = async (accessToken, absenceData) => {
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/absence`
     const method = 'POST'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     const data = absenceData
     const requestResponse = await Request(url, method, data, headers)
@@ -450,11 +386,6 @@ const StoreAbsence = async (accessToken, absenceData) => {
 
 const UpdateConfig = async (accessToken, payload) => {
     let response = {...responseStatus}
-    if(typeof accessToken !== "string") {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     if (typeof payload !== 'object') {
         response.isError = true
@@ -465,7 +396,7 @@ const UpdateConfig = async (accessToken, payload) => {
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/config`
     const method = 'PATCH'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     const data = payload
 
@@ -481,16 +412,11 @@ const UpdateConfig = async (accessToken, payload) => {
 }
 const GetConfig = async (accessToken) => {
     let response = {...responseStatus}
-    if(typeof accessToken !== "string") {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/config`
     const method = 'GET'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     
 
@@ -507,16 +433,11 @@ const GetConfig = async (accessToken) => {
 
 const UpdateAccountPassword = async (accessToken, payload) => {
     let response = {...responseStatus}
-    if(typeof accessToken !== "string") {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/account/password`
     const method = 'PATCH'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     const data = payload
     
@@ -534,16 +455,11 @@ const UpdateAccountPassword = async (accessToken, payload) => {
 
 const StoreAccount = async (accessToken, payload) => {
     let response = {...responseStatus}
-    if(typeof accessToken !== "string") {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/account`
     const method = 'POST'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     const data = payload
     
@@ -561,16 +477,11 @@ const StoreAccount = async (accessToken, payload) => {
 
 const GetAccount = async (accessToken) => {
     let response = {...responseStatus}
-    if(typeof accessToken !== "string") {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/account`
     const method = 'GET'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     
 
@@ -587,16 +498,11 @@ const GetAccount = async (accessToken) => {
 
 const UpdateAccount = async (accessToken, payload) => {
     let response = {...responseStatus}
-    if(typeof accessToken !== "string") {
-        response.isError = true
-        response.reason = `Access token token must be a string, given ${typeof accessToken} on Access Token`
-        return response
-    }
 
     const url = `${process.env.VUE_APP_API_HOST}/api/v1/account`
     const method = 'PATCH'
     const headers = {
-        'Access-Token': accessToken,
+        'Access-Token': accessToken || '',
     }
     
     const data = payload

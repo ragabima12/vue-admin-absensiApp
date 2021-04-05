@@ -118,6 +118,7 @@
                   </v-col>
                 </v-row>
                 <v-card class="mt-1">
+
                   <v-card-text
                     ><p>
                       {{

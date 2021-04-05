@@ -17,12 +17,7 @@ export default new Vuex.Store({
   state: {
     accountData: [],
     selectedAccount: {},
-    configData: {
-      min_attendance_time: "",
-      max_attendance_time: "",
-      min_leaving_time: "",
-      max_leaving_time: ""
-    },
+    configData: {},
     userData: {},
     studentData: {
       students: [],
@@ -156,7 +151,6 @@ export default new Vuex.Store({
     setConfigData: (state, payload) => {
       if( typeof payload !== 'object' ) console.warn(`[WARN] Payload is not an object, ${typeof payload} giver`)
       state.configData = payload
-      console.log('OK!')
     },
     setAccountData: (state, payload) => {
       if (!Array.isArray(payload)) {
@@ -172,8 +166,8 @@ export default new Vuex.Store({
   },
   actions: {
     isLoggedIn: async (state) => {
-      const accessToken = Vue.$cookies.get('access-token')
-      const refreshToken = Vue.$cookies.get('refresh-token')
+      const accessToken = localStorage.getItem('access-token')
+      const refreshToken = localStorage.getItem('refresh-token')
       const isHavingAccessToken = accessToken ? true : false
       const isHavingRefreshToken = refreshToken ? true : false
       const publicKey = process.env.VUE_APP_PUBLIC_KEY
@@ -192,8 +186,8 @@ export default new Vuex.Store({
           const isAdmin = isAllowedUsers.includes(state.state.userData.previleges)
           if (!isAdmin) {
             state.commit('setNotification', `Akses ditolak, akun yang anda gunakan tidak diperbolehkan mengakses fitur ini`)
-            Vue.$cookies.remove('access-token')
-            Vue.$cookies.remove('refresh-token')
+            localStorage.removeItem('access-token')
+            localStorage.removeItem('refresh-token')
             return false
           }
 
@@ -227,8 +221,9 @@ export default new Vuex.Store({
           const refreshToken = responseData.refresh_token
 
           // Store both tokens to cookie
-          Vue.$cookies.set('access-token', accessToken)
-          Vue.$cookies.set('refresh-token', refreshToken)
+          localStorage.setItem('access-token', accessToken)
+          localStorage.setItem('refresh-token', refreshToken)
+
           return responseStatus({ data: null, isError: false, reason: null })
         }
 
@@ -261,8 +256,8 @@ export default new Vuex.Store({
         const responseData = requestResponse.data.data
         const newAccessToken = responseData.access_token
         const newRefreshToken = responseData.refresh_token
-        Vue.$cookies.set('access-token', newAccessToken)
-        Vue.$cookies.set('refresh-token', newRefreshToken)
+        localStorage.setItem('access-token', newAccessToken)
+        localStorage.setItem('refresh-token', newRefreshToken)
         return responseStatus({ data: null, isError: false, reason: null })
       } catch (exception) {
         state.commit('setNotification', `Terjadi kesalahan saat memperbaharui token, ${exception.message}`)
@@ -273,7 +268,7 @@ export default new Vuex.Store({
     getStudentData: async (state) => {
       await state.dispatch('isLoggedIn')
 
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       try {
         const responseStatus = await Request.GetStudents(accessToken)
         if (responseStatus.isError) {
@@ -307,7 +302,7 @@ export default new Vuex.Store({
     updateStudentData: async (state) => {
       await state.dispatch('isLoggedIn')
 
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       const studentData = state.getters.getSelectedStudent
       let { _id: studentId, nisn, fullname, grade, major, parent, card_id } = studentData
       let parentId = null
@@ -349,7 +344,7 @@ export default new Vuex.Store({
 
       await state.dispatch('isLoggedIn')
 
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       const studentData = payload
       let { nisn, fullname, grade, major, parent, card_id } = studentData
       let parentId = null
@@ -384,7 +379,7 @@ export default new Vuex.Store({
     },
     deleteStudentData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       const studentData = state.getters.getSelectedStudent
       let { _id: studentId, fullname } = studentData
       let student = {
@@ -413,7 +408,7 @@ export default new Vuex.Store({
     },
     getParentData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       try {
         const responseStatus = await Request.GetParents(accessToken)
         if (responseStatus.isError) {
@@ -433,7 +428,7 @@ export default new Vuex.Store({
     },
     updateParentData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       const parentData = state.getters.getSelectedParent
       let { id, fullname, nik, email, phone_number } = parentData
       let parent = {
@@ -463,7 +458,7 @@ export default new Vuex.Store({
       }
 
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       const parentData = payload
       let { fullname, nik, email, phone_number } = parentData
       let parent = {
@@ -487,7 +482,7 @@ export default new Vuex.Store({
 
     deleteParentData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       const parentData = state.getters.getSelectedParent
       let { id, fullname } = parentData
       let parent = {
@@ -516,7 +511,7 @@ export default new Vuex.Store({
     },
     getAttendanceData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       try {
         const responseStatus = await Request.GetAttendance(accessToken)
         if (responseStatus.isError) {
@@ -536,7 +531,7 @@ export default new Vuex.Store({
     },
     getAbsenceData: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       try {
         const responseStatus = await Request.GetAbsence(accessToken)
         if (responseStatus.isError) {
@@ -560,32 +555,33 @@ export default new Vuex.Store({
       } 
 
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       state.commit('setNotification', `Memperbaharui status kehadiran ...`)
 
       try {
         const responseStatus = await Request.UpdateAttendance(accessToken, payload)
         if (responseStatus.isError ) {
-          state.commit('setNotification', `Terjadi kesalahan saat merequest ketidakhadiran siswa, ${responseStatus.reason}`)
-          return
-        } 
-        if(responseStatus.data.statusCode !== 200) {
-          state.commit('setNotification', `Terjadi kesalahan saat merequest ketidakhadiran siswa, ${responseStatus.reason}`)
+          state.commit('setNotification', `Terjadi kesalahan saat memperbaharui status kehadiran siswa, ${responseStatus.reason}`)
           return
         } 
 
-        // Update attendance data
-        await state.dispatch('getAttendanceData')
-        state.commit('setNotification', `Status berhasil diperbaharui`)
+        if(responseStatus.data.statusCode == 200) {// Update attendance data
+          await state.dispatch('getAttendanceData')
+          state.commit('setNotification', `Status berhasil diperbaharui`)
+          return
+        } 
+
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui status kehadiran siswa, ${responseStatus.data.reason}`)
+           
       }
       catch (exception) {
         console.warn(exception.message)
-        state.commit('setNotification', `Terjadi kesalahan saat merequest ketidakhadiran siswa, ${exception.message}`)
+        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui status kehadiran siswa, ${exception.message}`)
       }
     },
     storeAbsence: async (state, payload) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
 
       try {
         const result = await Request.StoreAbsence(accessToken, payload)
@@ -611,7 +607,7 @@ export default new Vuex.Store({
     },
     updateConfig: async (state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       const data = {
         'min-presence-time': state.state.configData.min_attendance_time,
         'max-presence-time': state.state.configData.max_attendance_time,
@@ -642,7 +638,7 @@ export default new Vuex.Store({
 
     getConfig: async(state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       try {
         const responseStatus = await Request.GetConfig(accessToken)
         if (responseStatus.isError) {
@@ -662,7 +658,7 @@ export default new Vuex.Store({
     updateAccountPassword: async(state, payload) => {
 
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
 
       if (typeof payload !== 'object') {
         console.warn(`Payload must be an object, ${typeof payload} given`)
@@ -689,7 +685,7 @@ export default new Vuex.Store({
     storeAccount: async(state,payload) => {
 
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       if (typeof payload !== 'object') {
         console.warn(`Payload must be an object, ${typeof payload} given`)
         return responseStatus({ data: null, isError: true, reason: `Payload must be an object, ${typeof payload} given` })
@@ -714,7 +710,7 @@ export default new Vuex.Store({
     },
     getAccount: async(state) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
       try {
         const responseStatus = await Request.GetAccount(accessToken)
         if (responseStatus.isError) {
@@ -737,7 +733,7 @@ export default new Vuex.Store({
 
     updateAccount: async(state, payload) => {
       await state.dispatch('isLoggedIn')
-      const accessToken = Vue.$cookies.get('access-token')
+      const accessToken = localStorage.getItem('access-token')
 
       if (typeof payload !== 'object') {
         console.warn(`Payload must be an object, ${typeof payload} given`)
@@ -746,7 +742,6 @@ export default new Vuex.Store({
 
       try {
         const responseStatus = await Request.UpdateAccount(accessToken, payload)
-        console.log(responseStatus)
         if (responseStatus.isError) {
           state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data akun, ${responseStatus.reason}`)
           return

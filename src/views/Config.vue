@@ -82,7 +82,7 @@ export default {
   },
 
   async mounted() {
-    const emptyConfigs = !this.$store.getters.getConfigs.length;
+    const emptyConfigs = Object.keys(this.$store.getters.getConfigs).length < 1;
     if (emptyConfigs) await this.$store.dispatch("getConfig");
   },
 };

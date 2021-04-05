@@ -131,8 +131,8 @@ export default {
           this.isShowedAccountDialog = true;
         },
         logout() {
-          Vue.$cookies.remove("access-token");
-          Vue.$cookies.remove("refresh-token");
+          localStorage.removeItem("access-token");
+          localStorage.removeItem("refresh-token");
           this.$router.push("/login");
         },
       },

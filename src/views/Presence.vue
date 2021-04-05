@@ -266,8 +266,10 @@ export default {
     this.isLoading = true;
     const emptyStudents = !this.$store.getters.getStudents.length;
     if (emptyStudents) await this.$store.dispatch("getStudentData");
+
     const emptyAttendances = !this.$store.getters.getAttendances.length;
     if (emptyAttendances) await this.$store.dispatch("getAttendanceData");
+    
     const emptyAbsences = !(await this.$store.getters.getAbsences.length);
     if (emptyAbsences) await this.$store.dispatch("getAbsenceData");
     this.isLoading = false;

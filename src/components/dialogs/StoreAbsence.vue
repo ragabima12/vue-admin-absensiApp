@@ -100,6 +100,7 @@
                   <h4 class="app-heading-thin app-text-subheading">
                     Masukan Gambar
                   </h4>
+
                   <v-file-input
                     v-model="imageStore"
                     chips
@@ -143,6 +144,7 @@ export default {
       absenceCategory: "izin",
     };
   },
+
   methods: {
     isClosedDialog() {
       this.errors = [];
@@ -224,31 +226,46 @@ export default {
 
       // Filtering Student Data
       students = students.map((student) => {
-        let attendanceData =
-          attendances.filter((attendance) => {
-            attendance.id_card == student.card_id;
-          })[0] || null;
-        let absenceData =
-          absences.filter((absence) => {
-            absence.id_student == student.student_id;
-          })[0] || null;
-        let attendanceStatus = "hadir";
+        let attendanceData = attendances.filter(
+          (attendance) => attendance.student_id == student._id
+        );
 
-        let notIsPresence = !attendanceData;
-        if (notIsPresence) attendanceStatus = "tidak hadir";
+        const isPresence = attendanceData.length > 0;
+        if (isPresence) {
+          return {
+            attendance: {
+              status: "hadir",
+              detail: attendanceData[0],
+            },
+            ...student,
+          };
+        }
 
-        if (absenceData) attendanceStatus = absenceData.absence_category;
+        let absenceData = absences.filter(
+          (absence) => absence.id_student === student._id
+        );
+
+        const isAbsence = absenceData.length > 0;
+        if (isAbsence) {
+          return {
+            attendance: {
+              status: absenceData[0].absence_category,
+              detail: absenceData[0],
+            },
+            ...student,
+          };
+        }
 
         return {
-          attendance: attendanceData || null,
-          absence: absenceData || null,
-          attendance_status: attendanceStatus,
+          attendance: {
+            status: "tidak hadir",
+            detail: null,
+          },
           ...student,
         };
       });
 
       if (this.search) {
-        console.log(students);
         return students.filter((student) =>
           student?.fullname && student?.nisn
             ? student.fullname
@@ -258,6 +275,11 @@ export default {
             : false
         );
       }
+
+      students = students.filter(
+        (student) => student.attendance.status === "tidak hadir"
+      );
+
       return students;
     },
   },

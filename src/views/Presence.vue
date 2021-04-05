@@ -26,7 +26,7 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols="3" class="ml-4 pr-0 mt-3">
+      <v-col cols="2" class="ml-4 pr-0 mt-3">
         <v-select
           :items="getMajors"
           label="Jurusan"
@@ -35,12 +35,26 @@
           clearable
         ></v-select>
       </v-col>
-      <v-col cols="3" class="ml-4 pr-0 mt-3">
+      <v-col cols="2" class="ml-4 pr-0 mt-3">
         <v-select
           :items="getGrades"
           label="Kelas"
           solo
           v-model="filter.byGrade"
+          clearable
+        ></v-select>
+      </v-col>
+      <v-col cols="3" class="ml-4 pr-0 mt-3">
+        <v-select
+          :items="[
+            { text: 'Izin', value: 'izin' },
+            { text: 'Sakit', value: 'sakit' },
+            { text: 'Hadir', value: 'hadir' },
+            { text: 'Tidak Hadir', value: 'tidak hadir' },
+          ]"
+          label="Status Kehadiran"
+          solo
+          v-model="filter.byAttendance"
           clearable
         ></v-select>
       </v-col>
@@ -67,6 +81,7 @@
           :items-per-page="5"
           class="elevation-1"
           :loading="isLoading"
+          :page.sync="currentPage"
           no-data="Sedang perbaharui kehadiran"
         >
           <template v-slot:[`item.attendance`]="{ item }">
@@ -129,12 +144,14 @@ import { mapGetters } from "vuex";
 export default {
   data() {
     return {
+      currentPage: 1,
       showPermission: false,
       isLoading: false,
       search: "",
       filter: {
         byMajor: null,
         byGrade: null,
+        byAttendance: null,
       },
       showPresenceDialog: false,
       headers: [
@@ -187,6 +204,7 @@ export default {
       let absences = this.getAbsences;
       let search = this.search;
       let filter = this.filter;
+      this.currentPage = 1;
 
       // Parsing student data
       students = students.map((student, index) => ({
@@ -197,23 +215,6 @@ export default {
         grade: student.grade,
         card_id: student.card_id,
       }));
-
-      // Filtering student data
-      if (search)
-        students = students.filter(
-          (student) =>
-            student.fullname.toLowerCase().indexOf(search.toLowerCase()) > -1
-        );
-
-      if (filter.byMajor)
-        students = students.filter(
-          (student) => student.major === filter.byMajor
-        );
-
-      if (filter.byGrade)
-        students = students.filter(
-          (student) => student.grade === filter.byGrade
-        );
 
       // Filtering student attendance
       students = students.map((student) => {
@@ -256,6 +257,28 @@ export default {
         };
       });
 
+      // Filtering student data
+      if (search)
+        students = students.filter(
+          (student) =>
+            student.fullname.toLowerCase().indexOf(search.toLowerCase()) > -1
+        );
+
+      if (filter.byMajor)
+        students = students.filter(
+          (student) => student.major === filter.byMajor
+        );
+
+      if (filter.byGrade)
+        students = students.filter(
+          (student) => student.grade === filter.byGrade
+        );
+
+      if (filter.byAttendance)
+        students = students.filter(
+          (student) => student.attendance.status === filter.byAttendance
+        );
+
       return students;
     },
     todayDate() {
@@ -269,7 +292,7 @@ export default {
 
     const emptyAttendances = !this.$store.getters.getAttendances.length;
     if (emptyAttendances) await this.$store.dispatch("getAttendanceData");
-    
+
     const emptyAbsences = !(await this.$store.getters.getAbsences.length);
     if (emptyAbsences) await this.$store.dispatch("getAbsenceData");
     this.isLoading = false;

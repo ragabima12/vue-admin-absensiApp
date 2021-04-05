@@ -750,6 +750,7 @@ export default new Vuex.Store({
         if (responseStatus.data.statusCode === 200) {
           let result = responseStatus.data.data
           state.commit('setNotification', `Berhasil memperbaharui data akun ${payload.fullname}`)
+          await state.dispatch('getParentData')
           return
         }
         

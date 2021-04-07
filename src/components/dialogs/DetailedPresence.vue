@@ -32,7 +32,8 @@
                 </h2>
                 <v-chip outlined class="mt-3 font-weight-bold" color="primary">
                   <v-icon left>mdi-clock-time-four-outline</v-icon>
-                  {{ presentTime }}</v-chip
+                  {{ presentTime }}
+                  </v-chip
                 >
               </v-col>
             </v-row>

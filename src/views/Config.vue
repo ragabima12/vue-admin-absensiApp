@@ -17,7 +17,7 @@
           solo
           clearable
           label="Waktu Presensi"
-          :value="`${getConfigs.min_attendance_time} - ${getConfigs.max_attendance_time}`"
+          :value="Object.keys(getConfigs).length < 1 ? `Sedang Memuat` :`${getConfigs.min_attendance_time} - ${getConfigs.max_attendance_time}`"
         >
         </v-text-field>
       </v-col>
@@ -35,7 +35,7 @@
           prepend-inner-icon="mdi-clock"
           solo
           label="Waktu Pulang"
-          :value="`${getConfigs.min_leaving_time} - ${getConfigs.max_leaving_time}`"
+          :value=" Object.keys(getConfigs).length < 1 ? `Sedang Memuat` : `${getConfigs.min_leaving_time} - ${getConfigs.max_leaving_time}`"
         >
         </v-text-field>
       </v-col>

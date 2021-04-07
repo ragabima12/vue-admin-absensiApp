@@ -107,6 +107,10 @@
                     label="Masukan Gambar"
                     multiple
                     solo
+                    show-size
+                    accept="image/jpeg, image/png"
+                    counter
+                    :rules="rules"
                   >
                   </v-file-input>
                 </v-col>
@@ -129,6 +133,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { isEmpty } from "validator";
+import Compressor from "compressorjs";
 
 export default {
   data() {
@@ -142,6 +147,13 @@ export default {
       student: {},
       absenceDescription: "",
       absenceCategory: "izin",
+      rules: [
+        (value) =>
+          value
+            .map((file) => file.size)
+            .reduce((currVal, nextVal) => (currVal += nextVal), 0) <
+            5 * 1000000 || "Total gambar yang diupload harus kurang dari 5MB",
+      ],
     };
   },
 
@@ -149,13 +161,13 @@ export default {
     isClosedDialog() {
       this.errors = [];
       this.search = "";
+
       this.isSuccess = false;
       this.$emit("closed", true);
     },
 
     async sendImagePermission() {
       this.isLoading = true;
-
       this.errors = [];
 
       const readImage = (fileBlob) =>
@@ -168,6 +180,19 @@ export default {
           reader.onerror = () => {
             reject(false);
           };
+        });
+
+      const compressImage = (fileBlob) =>
+        new Promise((resolve, reject) => {
+          new Compressor(fileBlob, {
+            quality: 0.3,
+            async success(result) {
+              resolve(await readImage(result));
+            },
+            error(err) {
+              reject(err);
+            },
+          });
         });
 
       let imageFiles = this.imageStore;
@@ -191,10 +216,8 @@ export default {
       }
 
       let base64Images = [];
-      for (let image of imageFiles) {
-        const base64Image = await readImage(image);
-        base64Images.push(base64Image);
-      }
+      for (let image of imageFiles) base64Images.push(compressImage(image));
+      base64Images = await Promise.all(base64Images);
 
       let absenceData = {
         student_id: this.student._id,

@@ -26,7 +26,6 @@ export default new Vuex.Store({
     },
     attendanceData: [],
     absenceData: [],
-    parentData: [],
     sidebar: {
       title: "",
       menus: [],
@@ -35,17 +34,9 @@ export default new Vuex.Store({
     },
     selectedStudent: {
       id: '',
-      parent_id: '',
       major: '',
       grade: '',
       fullname: '',
-    },
-    selectedParent: {
-      id: '',
-      nik: '',
-      fullname: '',
-      email: '',
-      phone_number: ''
     },
     selectedAttendance: {},
     notification: ''
@@ -74,26 +65,12 @@ export default new Vuex.Store({
 
       state.studentData = payload
     },
-    setParentData: (state, payload) => {
-      if (!Array.isArray(payload)) {
-        console.warn(`[WARN] Payload is not an array, ${typeof payload} given`)
-        return
-      }
-      state.parentData = payload
-    },
     setSelectedStudent: (state, payload) => {
       if (typeof payload !== 'object') {
         console.warn(`[WARN] Payload is not an object, ${typeof payload} given`)
         return
       }
       state.selectedStudent = { ...payload }
-    },
-    setSelectedParent: (state, payload) => {
-      if (typeof payload !== 'object') {
-        console.warn(`[WARN] Payload is not an object, ${typeof payload} given`)
-        return
-      }
-      state.selectedParent = { ...payload }
     },
     setNotification: (state, payload) => {
       if (typeof payload === 'string') state.notification = payload
@@ -304,12 +281,9 @@ export default new Vuex.Store({
 
       const accessToken = localStorage.getItem('access-token')
       const studentData = state.getters.getSelectedStudent
-      let { _id: studentId, nisn, fullname, grade, major, parent, card_id } = studentData
-      let parentId = null
-      if (parent) parentId = parent._id
+      let { _id: studentId, nisn, fullname, grade, major, card_id } = studentData
       let student = new Object()
       student['student-id'] = studentId
-      if (parentId) student['parent-id'] = parentId
       student['card-id'] = card_id || ''
       student.nisn = nisn
       student.fullname = fullname
@@ -346,11 +320,8 @@ export default new Vuex.Store({
 
       const accessToken = localStorage.getItem('access-token')
       const studentData = payload
-      let { nisn, fullname, grade, major, parent, card_id } = studentData
-      let parentId = null
-      if (parent) parentId = parent._id
+      let { nisn, fullname, grade, major, card_id } = studentData
       let student = new Object()
-      if (parentId) student['parent-id'] = parentId
       student['card-id'] = card_id || ''
       student.nisn = nisn
       student.fullname = fullname
@@ -406,109 +377,8 @@ export default new Vuex.Store({
         return responseStatus({ data: null, isError: true, reason: exception.message })
       }
     },
-    getParentData: async (state) => {
-      await state.dispatch('isLoggedIn')
-      const accessToken = localStorage.getItem('access-token')
-      try {
-        const responseStatus = await Request.GetParents(accessToken)
-        if (responseStatus.isError) {
-          state.commit('setNotification', `Terjadi kesalahan saat merequest data orang tua, ${responseStatus.reason}`)
-          return
-        }
-
-        if (responseStatus.data.statusCode === 200) {
-          let parents = responseStatus.data.data
-          state.commit('setParentData', parents)
-        }
-      } catch (exception) {
-        console.warn(exception.message)
-        state.commit('setNotification', `Terjadi kesalahan saat merequest data orang tua, ${exception.message}`)
-
-      }
-    },
-    updateParentData: async (state) => {
-      await state.dispatch('isLoggedIn')
-      const accessToken = localStorage.getItem('access-token')
-      const parentData = state.getters.getSelectedParent
-      let { id, fullname, nik, email, phone_number } = parentData
-      let parent = {
-        'parent-id': id,
-        nik: nik,
-        fullname: fullname,
-        email: email,
-        'phone-number': phone_number
-      }
-
-      try {
-        const result = await Request.UpdateParent(accessToken, parent)
-        if (result.isError) return responseStatus({ data: null, isError: true, reason: result.reason })
-        if (result.data.statusCode !== 200) return responseStatus({ data: result.data.data, isError: true, reason: result.data.reason })
-        await state.dispatch('getParentData')
-        return responseStatus({ data: result.data.data, isError: false, reason: null })
-      } catch (exception) {
-        console.warn(exception.message)
-        state.commit('setNotification', `Terjadi kesalahan saat memperbaharui data orang tua, ${exception.message}`)
-      }
-    },
-
-    storeParentData: async (state, payload) => {
-      if (typeof payload !== 'object') {
-        console.warn(`Payload must be an object, ${typeof payload} given`)
-        return responseStatus({ data: null, isError: true, reason: `Payload must be an object, ${typeof payload} given` })
-      }
-
-      await state.dispatch('isLoggedIn')
-      const accessToken = localStorage.getItem('access-token')
-      const parentData = payload
-      let { fullname, nik, email, phone_number } = parentData
-      let parent = {
-        nik: nik,
-        fullname: fullname,
-        email: email,
-        'phone-number': phone_number
-      }
-
-      try {
-        const result = await Request.StoreParent(accessToken, parent)
-        if (result.isError) return responseStatus({ data: null, isError: true, reason: result.reason })
-        if (result.data.statusCode !== 200) return responseStatus({ data: result.data.data, isError: true, reason: result.data.reason })
-        await state.dispatch('getParentData')
-        return responseStatus({ data: result.data.data, isError: false, reason: null })
-      } catch (exception) {
-        console.warn(exception.message)
-        state.commit('setNotification', `Terjadi kesalahan saat menambahkan data orang tua, ${exception.message}`)
-      }
-    },
-
-    deleteParentData: async (state) => {
-      await state.dispatch('isLoggedIn')
-      const accessToken = localStorage.getItem('access-token')
-      const parentData = state.getters.getSelectedParent
-      let { id, fullname } = parentData
-      let parent = {
-        'parent-id': id
-      }
-
-      try {
-        const result = await Request.DeleteParent(accessToken, parent)
-        if (result.isError) {
-          console.warn(result.reason)
-          state.commit('setNotification', `Terjadi kesalahan saat menghapus data orang tua, ${result.reason}`)
-          return responseStatus({ data: null, isError: true, reason: result.reason })
-        }
-
-        const statusCode = result.data.statusCode
-        if (statusCode !== 200) return responseStatus({ data: null, isError: true, reason: result.data.reason })
-
-        await state.dispatch('getParentData')
-        state.commit('setNotification', `Data orang tua dengan nama ${fullname} berhasil dihapus`)
-        return responseStatus({ data: null, isError: false, reason: null })
-      } catch (exception) {
-        console.warn(exception.message)
-        state.commit('setNotification', `Terjadi kesalahan saat menghapus data orang tua, ${exception.message}`)
-        return responseStatus({ data: null, isError: true, reason: exception.message })
-      }
-    },
+    
+    
     getAttendanceData: async (state) => {
       await state.dispatch('isLoggedIn')
       const accessToken = localStorage.getItem('access-token')
@@ -750,7 +620,6 @@ export default new Vuex.Store({
         if (responseStatus.data.statusCode === 200) {
           let result = responseStatus.data.data
           state.commit('setNotification', `Berhasil memperbaharui data akun ${payload.fullname}`)
-          await state.dispatch('getParentData')
           return
         }
         
@@ -781,12 +650,7 @@ export default new Vuex.Store({
     getSelectedStudent: state => {
       return state.selectedStudent
     },
-    getSelectedParent: state => {
-      return state.selectedParent
-    },
-    getParents: state => {
-      return state.parentData
-    },
+    
     getNotification: state => {
       return state.notification
     },

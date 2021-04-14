@@ -172,14 +172,10 @@ export default {
   async mounted() {
     const emptyStudents = !this.$store.getters.getStudents.length;
     if (emptyStudents) await this.$store.dispatch("getStudentData");
-
-    const emptyParents = !this.$store.getters.getParents.length;
-    if (emptyParents) await this.$store.dispatch("getParentData");
   },
   computed: {
     StudentData() {
       let studentData = this.$store.getters.getStudents;
-      let parentData = this.$store.getters.getParents;
 
       if (studentData.length > 0) {
         this.isLoadingTable = false;
@@ -215,15 +211,6 @@ export default {
         }));
 
         // Matching with pardent data
-        studentData = studentData.map((student) => {
-          let parent = parentData.filter(
-            (parent) => parent._id === student.parent_id
-          );
-          parent = parent[0];
-          let result = { parent: parent, ...student };
-          delete result.parent_id;
-          return result;
-        });
 
         return studentData;
       }

@@ -41,9 +41,7 @@
         ><h4 class="app-text-white app-heading-thin">Presensi</h4></v-btn
       >
       <v-btn plain color="white" @click="NavigateTo(`/dashboard/student`)"
-        ><h4 class="app-text-white app-heading-thin">
-          Data Siswa & Orang Tua
-        </h4></v-btn
+        ><h4 class="app-text-white app-heading-thin">Data Siswa</h4></v-btn
       >
       <v-btn plain color="white" @click="NavigateTo(`/dashboard/config`)"
         ><h4 class="app-text-white app-heading-thin">Konfigurasi</h4></v-btn

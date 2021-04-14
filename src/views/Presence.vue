@@ -38,7 +38,7 @@
       <v-col cols="2" class="ml-4 pr-0 mt-3">
         <v-select
           :items="getGrades"
-          label="Kelas"
+          label="Tahun Ajaran"
           solo
           v-model="filter.byGrade"
           clearable
@@ -163,7 +163,7 @@ export default {
         },
         { text: "Nama Lengkap", value: "fullname" },
         { text: "Jurusan", value: "major" },
-        { text: "Kelas", value: "grade" },
+        { text: "Tahun Ajaran", value: "grade" },
         { text: "Status Kehadiran", value: "attendance" },
         { text: "Aksi", value: "action" },
       ],

@@ -52,18 +52,23 @@
                     v-model="isTruncated"
                     label="Hapus seluruh data lama yang ada pada database (Truncate)"
                   ></v-checkbox>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-alert
+                </v-col>
+                <v-col cols="12">
+                  <v-alert
                     text
                     outlined
                     color="deep-orange"
                     icon="mdi-fire"
                     v-if="isTruncated"
                   >
-                    Ketika anda mencentang opsi ini maka <b>seluruh data siswa dan orang tua</b> pada database akan <b>dihapus</b> dan digantikan oleh data baru. Jika anda ingin hanya menambahkan data baru kedalam database silahkan matikan opsi ini. <b>Tindakan ini tidak bisa dipulihkan kembali!</b>
+                    Ketika anda mencentang opsi ini maka
+                    <b>seluruh data siswa dan orang tua</b> pada database akan
+                    <b>dihapus</b> dan digantikan oleh data baru. Jika anda
+                    ingin hanya menambahkan data baru kedalam database silahkan
+                    matikan opsi ini.
+                    <b>Tindakan ini tidak bisa dipulihkan kembali!</b>
                   </v-alert>
-                  </v-col>
+                </v-col>
               </v-row>
               <v-row>
                 <v-col cols="12">
@@ -262,7 +267,6 @@ export default {
 
       // Updating Student and Parent Data
       await this.$store.dispatch("getStudentData");
-      await this.$store.dispatch("getParentData");
 
       // Tampilkan pesan selesai
       this.infoBar.isShowed = true;

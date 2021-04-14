@@ -65,7 +65,7 @@
                   <v-text-field
                     v-model="student.card_id"
                     solo
-                    label="Masukan Nama Lengkap"
+                    label="Masukan ID Card"
                     :disabled="isLoading"
                   ></v-text-field>
                 </v-col>
@@ -90,40 +90,6 @@
                     label="Kelas"
                     :disabled="isLoading"
                   ></v-select>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col class="pt-0 pb-0" cols="12">
-                  <h4 class="app-heading-thin app-text-subheading">
-                    Nama Orangtua
-                  </h4>
-                  <v-autocomplete
-                    v-model="student.parent"
-                    :items="getParents"
-                    :search-input.sync="search"
-                    solo
-                    color="blue-grey lighten-2"
-                    label="Nama Orangtua"
-                    clearable
-                    no-filter
-                    :disabled="isLoading"
-                  >
-                    <template v-slot:selection="data">
-                      {{ data.item.fullname }}
-                    </template>
-                    <template v-slot:item="data">
-                      <template>
-                        <v-list-item-content>
-                          <v-list-item-title
-                            v-html="data.item.fullname"
-                          ></v-list-item-title>
-                          <v-list-item-subtitle
-                            v-html="data.item.unique_credential"
-                          ></v-list-item-subtitle>
-                        </v-list-item-content>
-                      </template>
-                    </template>
-                  </v-autocomplete>
                 </v-col>
               </v-row>
             </v-container>
@@ -156,7 +122,6 @@ export default {
         card_id: null,
         major: null,
         grade: null,
-        parent: null,
       },
     };
   },
@@ -183,7 +148,7 @@ export default {
       if (isNaN(student.nisn))
         this.errors.push("NISN siswa harus berupa angka");
       if (!student.major) this.errors.push("Jurusan tidak boleh kosong");
-      if (!student.grade) this.errors.push("Kelas tidak boleh kosong");
+      if (!student.grade) this.errors.push("Tahun Ajaran tidak boleh kosong");
 
       const isErrors = this.errors.length > 0;
       if (isErrors) {
@@ -207,21 +172,6 @@ export default {
   },
   computed: {
     ...mapGetters(["getMajors", "getGrades"]),
-    getParents() {
-      let parents = this.$store.getters.getParents;
-      if (this.search) {
-        return parents.filter(
-          (parent) =>
-            parent.fullname.toLowerCase().indexOf(this.search.toLowerCase()) >
-              -1 ||
-            parent.unique_credential
-              .toLowerCase()
-              .indexOf(this.search.toLowerCase()) > -1
-        );
-      }
-
-      return parents;
-    },
   },
 };
 </script>

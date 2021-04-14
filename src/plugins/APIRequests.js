@@ -200,105 +200,6 @@ const DeleteStudent = async (accessToken, studentData) => {
     response.data = requestResponse.data
     return response
 }
-
-const GetParents = async (accessToken) => {
-    let response = { ...responseStatus }
-
-    const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
-    const method = 'GET'
-    const headers = {
-        'Access-Token': accessToken || '',
-    }
-
-    const requestResponse = await Request(url, method, null, headers)
-    if (requestResponse.isError) {
-        response.isError = true
-        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
-        return response
-    }
-
-    response.data = requestResponse.data
-    return response
-}
-
-const UpdateParent = async (accessToken, parentData) => {
-    let response = { ...responseStatus }
-
-    if (typeof parentData !== 'object') {
-        response.isError = true
-        response.reason = `Student data must be an object, ${typeof parentData} given`
-        return response
-    }
-
-    const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
-    const method = 'PATCH'
-    const headers = {
-        'Access-Token': accessToken || '',
-    }
-    const data = parentData
-    const requestResponse = await Request(url, method, data, headers)
-    if (requestResponse.isError) {
-        response.isError = true
-        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
-        return response
-    }
-
-    response.data = requestResponse.data
-    return response
-}
-
-const StoreParent = async (accessToken, parentData) => {
-    let response = { ...responseStatus }
-
-    if (typeof parentData !== 'object') {
-        response.isError = true
-        response.reason = `Student data must be an object, ${typeof parentData} given`
-        return response
-    }
-
-    const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
-    const method = 'POST'
-    const headers = {
-        'Access-Token': accessToken || '',
-    }
-    const data = parentData
-    const requestResponse = await Request(url, method, data, headers)
-    if (requestResponse.isError) {
-        response.isError = true
-        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
-        return response
-    }
-
-    response.data = requestResponse.data
-    return response
-}
-
-
-const DeleteParent = async (accessToken, parentData) => {
-    let response = { ...responseStatus }
-
-    if (typeof parentData !== 'object') {
-        response.isError = true
-        response.reason = `Student data must be an object, ${typeof parentData} given`
-        return response
-    }
-
-    const url = `${process.env.VUE_APP_API_HOST}/api/v1/parent`
-    const method = 'DELETE'
-    const headers = {
-        'Access-Token': accessToken || '',
-    }
-    const data = parentData
-    const requestResponse = await Request(url, method, data, headers)
-    if (requestResponse.isError) {
-        response.isError = true
-        response.reason = `Error when requesting to API server with error : ${requestResponse.reason}`
-        return response
-    }
-
-    response.data = requestResponse.data
-    return response
-}
 const GetAttendance = async (accessToken) => {
     let response = { ...responseStatus }
 
@@ -527,10 +428,6 @@ export default {
     UpdateStudent,
     StoreStudent,
     DeleteStudent,
-    GetParents,
-    UpdateParent,
-    StoreParent,
-    DeleteParent,
     GetAttendance,
     GetAbsence,
     UpdateAttendance,

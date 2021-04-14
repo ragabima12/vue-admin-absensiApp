@@ -105,20 +105,10 @@ export default {
             icon: "mdi-account-circle",
             action: "studentData",
           },
-          {
-            text: "Data Orangtua Siswa",
-            icon: "mdi-account-multiple",
-            action: "parentData",
-          },
         ];
         this.sidebar.actions = {
           studentData() {
             return this.$router.push("/dashboard/student").catch(() => {});
-          },
-          parentData() {
-            return this.$router
-              .push("/dashboard/student/parent")
-              .catch(() => {});
           },
         };
       }
@@ -128,12 +118,22 @@ export default {
           {
             text: "Konfigurasi Waktu",
             icon: "mdi-clock-time-four",
-            action: "manageAccount",
+            action: "manageClock",
+          },
+          {
+            text: "Konfigurasi Umum",
+            icon: "mdi-cog",
+            action: "manageGeneral",
           },
         ];
         this.sidebar.actions = {
-          manageAccount() {
+          manageClock() {
             return this.$router.push("/dashboard/config").catch(() => {});
+          },
+          manageGeneral() {
+            return this.$router
+              .push("/dashboard/config/general")
+              .catch(() => {});
           },
         };
       }
